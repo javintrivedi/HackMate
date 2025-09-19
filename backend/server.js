@@ -6,6 +6,7 @@ import cors from 'cors';
 import bodyParser from 'body-parser';
 
 import AuthRouter from './Routes/AuthRouter.js';
+import ProfileRouter from './Routes/ProfileRouter.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -21,11 +22,12 @@ app.use(cors({
 app.use(bodyParser.json());
 
 app.use('/auth', AuthRouter);
+app.use('/profile', ProfileRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello from Auth Backend!');
 });
 
 app.listen(PORT, () => {
-  console.log(`🚀 Server running at http://localhost:${PORT}`);
+  console.log(`Server running at http://localhost:${PORT}`);
 });
