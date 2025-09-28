@@ -1,19 +1,26 @@
     import React, { useRef } from 'react'
     import { motion } from 'framer-motion'
-    import chimeSound from '../assets/Chime.wav' // 
+    import chimeSound from '../assets/Chime.wav' 
+    import mainbg from '../assets/mainbg.png'
+    import { useNavigate } from 'react-router-dom'
 
     const LandingScreen = () => {
-    const audioRef = useRef(null)
+     const audioRef = useRef(null)
+  const navigate = useNavigate()
 
-    const playChime = () => {
-        if (!audioRef.current) {
-        audioRef.current = new Audio(chimeSound)
-        }
-        audioRef.current.play()
+  const playChimeAndNavigate = () => {
+    if (!audioRef.current) {
+      audioRef.current = new Audio(chimeSound)
     }
+    audioRef.current.play()
+    setTimeout(() => {
+      navigate('/login') 
+    }, 700) 
+  }
 
     return (
-        <div className="bg-[#D7EEFF] h-screen flex flex-col justify-center items-center">
+       <div className="h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat relative"
+     style={{ backgroundImage: `url(${mainbg})` }}>
         <motion.h1
             className='text-[#14274E] text-center text-7xl font-normal font-["Lexend_Exa"]'
             style={{ textShadow: "0 4px 9px rgba(0, 0, 0, 0.25)" }}
@@ -23,8 +30,6 @@
         >
             HackMate
         </motion.h1>
-
-        {/* Subtitle */}
         <motion.h3
             className="text-4xl text-black font-normal font-['Lexend_Exa']"
             initial={{ opacity: 0, y: 100 }}
@@ -40,7 +45,7 @@
             transition={{ duration: 0.7, delay: 1.0, ease: "easeOut" }}
             whileHover={{ scale: 1.08, delay: 0, ease: "easeOut" }}
             whileTap={{ scale: 0.95 }}
-            onClick={playChime} 
+            onClick={playChimeAndNavigate}
         >
             Get Started
         </motion.button>
