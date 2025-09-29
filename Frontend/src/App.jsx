@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route } from 'react-router-dom'
 import LandingScreen from './Pages/LandingScreen'
 import Login from './Pages/Login'
 import Signup from './Pages/Signup'
+import GetStarted from './Pages/GetStarted'
 
 const App = () => {
   return (
@@ -15,6 +16,7 @@ const App = () => {
           {/* Add your other routes here */}
           <Route path="/login" element={<Login />} />
           <Route path="/signup" element={<Signup />} />
+          <Route path="/get-started" element={<GetStarted />} />
           {/* Optional: Catch-all route for 404s */}
           <Route path="*" element={<LandingScreen />} />
         </Routes>
