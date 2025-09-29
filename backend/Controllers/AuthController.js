@@ -1,23 +1,13 @@
 import UserModel from "../Modules/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
-import nodemailer from "nodemailer";
 import dotenv from "dotenv";
+import { Resend } from "resend";
 
 dotenv.config();
 
 const otpStore = {}; // in-memory store
-
-// ✅ Create transporter once (reuse)
-const transporter = nodemailer.createTransport({
-  service: "gmail",
-  auth: {
-    user: process.env.EMAIL_USER, // Gmail address
-    pass: process.env.EMAIL_PASS, // App Password (16-char)
-  },
-  logger: true,
-  debug: true,
-});
+const resend = new Resend(process.env.RESEND_API_KEY);
 
 // --- SIGNUP INIT ---
 const signupInit = async (req, res) => {
@@ -48,18 +38,17 @@ const signupInit = async (req, res) => {
       createdAt: Date.now(),
     };
 
-    console.log("📩 Sending OTP to:", email, "OTP:", otp);
-    console.log("🔑 Using EMAIL_USER:", process.env.EMAIL_USER);
+    console.log("📩 Sending OTP via Resend to:", email, "OTP:", otp);
 
-    // send OTP email
-    await transporter.sendMail({
-      from: `"HackMate Auth" <${process.env.EMAIL_USER}>`,
+    // send OTP email with Resend
+    await resend.emails.send({
+      from: "HackMate Auth <onboarding@resend.dev>", // can be any verified sender
       to: email,
       subject: "Your OTP for Signup",
       text: `Your OTP is ${otp}. It will expire in 5 minutes.`,
     });
 
-    console.log("✅ OTP sent successfully");
+    console.log("✅ OTP sent successfully via Resend");
 
     return res.status(200).json({
       message: "OTP sent to email",
