@@ -74,7 +74,7 @@ const Signup = () => {
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
 
-        navigate("/dashboard");
+        navigate("/get-started");
       } else {
         setError(data.message || data.error || "OTP verification failed.");
       }
