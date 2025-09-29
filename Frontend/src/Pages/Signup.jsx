@@ -1,6 +1,8 @@
 import React, { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import mainbg from "../assets/mainbg.png";
+import { toast, ToastContainer } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 
 const Signup = () => {
   const [name, setName] = useState("");
@@ -10,17 +12,26 @@ const Signup = () => {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState("");
   const navigate = useNavigate();
+
+  // Validate SRM email before sending request
+  const isValidSrmEmail = (email) => {
+    return /^[a-zA-Z0-9._%+-]+@srmist\.edu\.in$/.test(email);
+  };
 
   // Step 1: Signup Init
   const handleSignupInit = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
+
+    if (!isValidSrmEmail(email)) {
+      toast.error("Email must be a valid SRMIST email (example@srmist.edu.in)");
+      setLoading(false);
+      return;
+    }
 
     if (password !== confirmPassword) {
-      setError("Passwords do not match.");
+      toast.error("Passwords do not match.");
       setLoading(false);
       return;
     }
@@ -36,15 +47,16 @@ const Signup = () => {
       );
 
       const data = await response.json();
+
       if (response.ok) {
-        console.log("OTP sent:", data);
+        toast.success("OTP sent to your email!");
         setStep(2);
       } else {
-        setError(data.message || "Signup failed. Please try again.");
+        toast.error(data.message || "Signup failed. Please try again.");
       }
     } catch (err) {
       console.error("Signup error:", err);
-      setError("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -54,7 +66,6 @@ const Signup = () => {
   const handleVerifyOtp = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError("");
 
     try {
       const response = await fetch(
@@ -68,19 +79,16 @@ const Signup = () => {
 
       const data = await response.json();
       if (response.ok) {
-        console.log("Signup successful:", data);
-
-        // ✅ Save only what you need
+        toast.success("Signup successful!");
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-
         navigate("/get-started");
       } else {
-        setError(data.message || data.error || "OTP verification failed.");
+        toast.error(data.message || data.error || "OTP verification failed.");
       }
     } catch (err) {
       console.error("Verify OTP error:", err);
-      setError("Network error. Please try again.");
+      toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
@@ -91,16 +99,12 @@ const Signup = () => {
       className="h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat relative"
       style={{ backgroundImage: `url(${mainbg})` }}
     >
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <div className="flex flex-col items-center -mt-10 w-full max-w-md px-6">
         <h1 className="text-6xl mb-10 text-[#395EAA] font-['Lexend_Exa'] font-bold">
           Sign Up
         </h1>
-
-        {error && (
-          <div className="w-full mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-xl">
-            {error}
-          </div>
-        )}
 
         {step === 1 ? (
           <form className="w-full flex flex-col gap-4" onSubmit={handleSignupInit}>
