@@ -7,8 +7,8 @@ const Signup = () => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [otp, setOtp] = useState(""); // OTP input
-  const [step, setStep] = useState(1); // step 1 = form, step 2 = OTP
+  const [otp, setOtp] = useState("");
+  const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const navigate = useNavigate();
@@ -26,16 +26,19 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch("https://hackmate-ybgv.onrender.com/auth/signup-init", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, password }),
-      });
+      const response = await fetch(
+        "https://hackmate-ybgv.onrender.com/auth/signup-init",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
         console.log("OTP sent:", data);
-        setStep(2); // move to OTP step
+        setStep(2);
       } else {
         setError(data.message || "Signup failed. Please try again.");
       }
@@ -54,19 +57,26 @@ const Signup = () => {
     setError("");
 
     try {
-      const response = await fetch("https://hackmate-ybgv.onrender.com/auth/verify-otp", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ email, otp }),
-      });
+      const response = await fetch(
+        "https://hackmate-ybgv.onrender.com/auth/verify-otp",
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ email, otp }),
+        }
+      );
 
       const data = await response.json();
       if (response.ok) {
         console.log("Signup successful:", data);
-        localStorage.setItem("user", JSON.stringify(data));
+
+        // ✅ Save only what you need
+        localStorage.setItem("token", data.token);
+        localStorage.setItem("user", JSON.stringify(data.user));
+
         navigate("/dashboard");
       } else {
-        setError(data.message || "OTP verification failed.");
+        setError(data.message || data.error || "OTP verification failed.");
       }
     } catch (err) {
       console.error("Verify OTP error:", err);
@@ -99,43 +109,43 @@ const Signup = () => {
               placeholder="Full Name"
               value={name}
               onChange={(e) => setName(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-inner"
               required
               disabled={loading}
+              className="w-full px-4 py-3 rounded-xl bg-gray-100 focus:ring-2 focus:ring-blue-300 shadow-inner"
             />
             <input
               type="email"
               placeholder="SRM NetID (Email)"
               value={email}
               onChange={(e) => setEmail(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-inner"
               required
               disabled={loading}
+              className="w-full px-4 py-3 rounded-xl bg-gray-100 focus:ring-2 focus:ring-blue-300 shadow-inner"
             />
             <input
               type="password"
               placeholder="Password"
               value={password}
               onChange={(e) => setPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-inner"
               required
-              disabled={loading}
               minLength="6"
+              disabled={loading}
+              className="w-full px-4 py-3 rounded-xl bg-gray-100 focus:ring-2 focus:ring-blue-300 shadow-inner"
             />
             <input
               type="password"
               placeholder="Confirm Password"
               value={confirmPassword}
               onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-inner"
               required
-              disabled={loading}
               minLength="6"
+              disabled={loading}
+              className="w-full px-4 py-3 rounded-xl bg-gray-100 focus:ring-2 focus:ring-blue-300 shadow-inner"
             />
             <button
               type="submit"
-              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               disabled={loading}
+              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center"
             >
               {loading ? "Sending OTP..." : "Create Account"}
             </button>
@@ -147,14 +157,14 @@ const Signup = () => {
               placeholder="Enter OTP"
               value={otp}
               onChange={(e) => setOtp(e.target.value)}
-              className="w-full px-4 py-3 rounded-xl bg-gray-100 placeholder-gray-400 focus:outline-none focus:ring-2 focus:ring-blue-300 shadow-inner"
               required
               disabled={loading}
+              className="w-full px-4 py-3 rounded-xl bg-gray-100 focus:ring-2 focus:ring-blue-300 shadow-inner"
             />
             <button
               type="submit"
-              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
               disabled={loading}
+              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center"
             >
               {loading ? "Verifying OTP..." : "Verify & Signup"}
             </button>

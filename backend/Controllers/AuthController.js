@@ -2,8 +2,10 @@ import UserModel from "../Modules/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
-const otpStore = {};
 
+const otpStore = {}; // in-memory store
+
+// --- SIGNUP INIT ---
 const signupInit = async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -20,34 +22,44 @@ const signupInit = async (req, res) => {
     // generate 6-digit OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
 
-    // hash password for security
+    // hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // store user data temporarily
+    // store temporarily
     otpStore[email] = { name, email, password: hashedPassword, otp, createdAt: Date.now() };
 
-    // send OTP to email
+    console.log("📩 Sending OTP to:", email, "OTP:", otp);
+
+    // Gmail transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
+      port: 465,
+      secure: true, // use SSL
       auth: {
-        user: process.env.EMAIL_USER, // your gmail
-        pass: process.env.EMAIL_PASS, // app password
+        user: process.env.EMAIL_USER, // Gmail address
+        pass: process.env.EMAIL_PASS, // Gmail App Password
       },
+      logger: true,
+      debug: true,
     });
 
+    // send OTP email
     await transporter.sendMail({
-      from: process.env.EMAIL_USER,
+      from: `"HackMate Auth" <${process.env.EMAIL_USER}>`,
       to: email,
       subject: "Your OTP for Signup",
       text: `Your OTP is ${otp}. It will expire in 5 minutes.`,
     });
+
+    console.log("✅ OTP sent successfully");
 
     return res.status(200).json({
       message: "OTP sent to email",
       success: true,
     });
   } catch (error) {
-    res.status(500).json({
+    console.error("❌ Error while sending OTP:", error);
+    return res.status(500).json({
       message: "Error in signup-init",
       success: false,
       error: error.message,
@@ -55,6 +67,7 @@ const signupInit = async (req, res) => {
   }
 };
 
+// --- VERIFY OTP ---
 const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -64,12 +77,13 @@ const verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "OTP expired or not requested", success: false });
     }
 
-    // check OTP expiration (5 mins)
+    // check expiry
     if (Date.now() - storedData.createdAt > 5 * 60 * 1000) {
       delete otpStore[email];
       return res.status(400).json({ message: "OTP expired", success: false });
     }
 
+    // check OTP match
     if (storedData.otp !== otp) {
       return res.status(400).json({ message: "Invalid OTP", success: false });
     }
@@ -82,7 +96,7 @@ const verifyOtp = async (req, res) => {
     });
     await newUser.save();
 
-    // clear OTP store
+    // cleanup
     delete otpStore[email];
 
     // generate JWT
@@ -99,6 +113,7 @@ const verifyOtp = async (req, res) => {
       user: { name: newUser.name, email: newUser.email },
     });
   } catch (error) {
+    console.error("❌ Error verifying OTP:", error);
     res.status(500).json({
       message: "Error verifying OTP",
       success: false,
@@ -107,6 +122,7 @@ const verifyOtp = async (req, res) => {
   }
 };
 
+// --- LOGIN ---
 const login = async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -140,6 +156,7 @@ const login = async (req, res) => {
       user: { name: user.name, email: user.email },
     });
   } catch (error) {
+    console.error("❌ Error in login:", error);
     res.status(500).json({
       message: "Error in login",
       success: false,
