@@ -2,8 +2,22 @@ import UserModel from "../Modules/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import nodemailer from "nodemailer";
+import dotenv from "dotenv";
+
+dotenv.config();
 
 const otpStore = {}; // in-memory store
+
+// ✅ Create transporter once (reuse)
+const transporter = nodemailer.createTransport({
+  service: "gmail",
+  auth: {
+    user: process.env.EMAIL_USER, // Gmail address
+    pass: process.env.EMAIL_PASS, // App Password (16-char)
+  },
+  logger: true,
+  debug: true,
+});
 
 // --- SIGNUP INIT ---
 const signupInit = async (req, res) => {
@@ -26,22 +40,16 @@ const signupInit = async (req, res) => {
     const hashedPassword = await bcrypt.hash(password, 10);
 
     // store temporarily
-    otpStore[email] = { name, email, password: hashedPassword, otp, createdAt: Date.now() };
+    otpStore[email] = {
+      name,
+      email,
+      password: hashedPassword,
+      otp,
+      createdAt: Date.now(),
+    };
 
     console.log("📩 Sending OTP to:", email, "OTP:", otp);
-
-    // Gmail transporter
-    const transporter = nodemailer.createTransport({
-      service: "gmail",
-      port: 465,
-      secure: true, // use SSL
-      auth: {
-        user: process.env.EMAIL_USER, // Gmail address
-        pass: process.env.EMAIL_PASS, // Gmail App Password
-      },
-      logger: true,
-      debug: true,
-    });
+    console.log("🔑 Using EMAIL_USER:", process.env.EMAIL_USER);
 
     // send OTP email
     await transporter.sendMail({
@@ -74,7 +82,9 @@ const verifyOtp = async (req, res) => {
 
     const storedData = otpStore[email];
     if (!storedData) {
-      return res.status(400).json({ message: "OTP expired or not requested", success: false });
+      return res
+        .status(400)
+        .json({ message: "OTP expired or not requested", success: false });
     }
 
     // check expiry
