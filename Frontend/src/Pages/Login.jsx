@@ -1,65 +1,64 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import mainbg from '../assets/mainbg.png';
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 
 const Login = () => {
   const [netID, setNetID] = useState('');
   const [password, setPassword] = useState('');
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
   const navigate = useNavigate();
+
+  const isValidSrmEmail = (email) => {
+    return /^[a-zA-Z0-9._%+-]+@srmist\.edu\.in$/.test(email);
+  };
 
   const handleLogin = async (e) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+
+    if (!isValidSrmEmail(netID)) {
+      toast.error('Email must be a valid SRMIST email (example@srmist.edu.in)');
+      setLoading(false);
+      return;
+    }
 
     try {
       const response = await fetch('https://hackmate-ybgv.onrender.com/auth/login', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-          email: netID,
-          password: password,
-        }),
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ email: netID, password }),
       });
 
+      const data = await response.json();
+
       if (response.ok) {
-        const data = await response.json();
-        console.log('Login successful:', data);
-        
-        // Store user data in localStorage (optional)
-        localStorage.setItem('user', JSON.stringify(data));
-        
-        // Navigate to dashboard on successful login
+        toast.success('Login successful!');
+        localStorage.setItem('token', data.token);
+        localStorage.setItem('user', JSON.stringify(data.user));
         navigate('/dashboard');
       } else {
-        // Handle error response
-        const errorData = await response.json();
-        setError(errorData.message || 'Login failed. Please check your credentials.');
+        toast.error(data.message || 'Login failed. Please check your credentials.');
       }
-    } catch (error) {
-      console.error('Login error:', error);
-      setError('Network error. Please try again.');
+    } catch (err) {
+      console.error('Login error:', err);
+      toast.error('Network error. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
   return (
-    <div className="h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat relative"
-         style={{ backgroundImage: `url(${mainbg})` }}>
+    <div
+      className="h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat relative"
+      style={{ backgroundImage: `url(${mainbg})` }}
+    >
+      <ToastContainer position="top-right" autoClose={3000} />
+
       <div className="flex flex-col items-center -mt-10 w-full max-w-md px-6">
         <h1 className="text-6xl mb-10 text-[#395EAA] font-['Lexend_Exa'] font-bold">Login</h1>
-        
-        {error && (
-          <div className="w-full mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-xl">
-            {error}
-          </div>
-        )}
-        
+
         <form className="w-full flex flex-col gap-4" onSubmit={handleLogin}>
           <input
             type="email"
@@ -97,7 +96,7 @@ const Login = () => {
             )}
           </button>
         </form>
-        
+
         <div className="mt-6 text-center">
           <p className="text-gray-600">
             Don't have an account?{' '}
