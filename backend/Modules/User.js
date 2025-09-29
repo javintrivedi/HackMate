@@ -2,37 +2,22 @@ import mongoose from "mongoose";
 const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
-  name: {
-    type: String,
-    required: true,
-  },
-  email: {
-    type: String,
-    required: true,
-    unique:true,
-  },
-  password: {
-    type: String,
-    required: true,
-  },
-  year: {
-    type: String, // e.g., "2nd Year"
-  },
-  gender: {
-    type: String, // "Male", "Female", "Other"
-  },
-  skills: {
-    type: [String], // e.g., ["React", "Node", "ML"]
-    default: []
-  },
-  trackPreference: {
-    type: [String], // e.g., ["Fintech", "Agritech"]
-    default: []
-  },
-  bio: {
-    type: String, // small intro
-  }
+  name: { type: String, required: true },
+  email: { type: String, required: true, unique:true },
+  password: { type: String, required: true },
+  year: { type: String },
+  gender: { type: String },
+  skills: { type: [String], default: [] },
+  trackPreference: { type: [String], default: [] },
+  bio: { type: String },
+  
+  // Matching fields
+  selectedUsers: { type: [Schema.Types.ObjectId], ref: "authuser", default: [] }, 
+  pendingRequests: { type: [Schema.Types.ObjectId], ref: "authuser", default: [] },
+  matches: { type: [Schema.Types.ObjectId], ref: "authuser", default: [] }
+
 }, { timestamps: true });
+
 
 const UserModel = mongoose.model('authuser', UserSchema);
 export default UserModel;
