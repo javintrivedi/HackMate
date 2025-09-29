@@ -2,12 +2,14 @@ import UserModel from "../Modules/User.js";
 import bcrypt from "bcrypt";
 import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
-import { Resend } from "resend";
+import sgMail from "@sendgrid/mail";
 
 dotenv.config();
 
 const otpStore = {}; // in-memory store
-const resend = new Resend(process.env.RESEND_API_KEY);
+
+// ✅ Initialize SendGrid
+sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
 // --- SIGNUP INIT ---
 const signupInit = async (req, res) => {
@@ -38,17 +40,19 @@ const signupInit = async (req, res) => {
       createdAt: Date.now(),
     };
 
-    console.log("📩 Sending OTP via Resend to:", email, "OTP:", otp);
+    console.log("📩 Sending OTP via SendGrid to:", email, "OTP:", otp);
 
-    // send OTP email with Resend
-    await resend.emails.send({
-      from: "HackMate Auth <onboarding@resend.dev>", // can be any verified sender
+    // send OTP email with SendGrid
+    const msg = {
       to: email,
+      from: process.env.EMAIL_FROM, // Verified sender
       subject: "Your OTP for Signup",
       text: `Your OTP is ${otp}. It will expire in 5 minutes.`,
-    });
+    };
 
-    console.log("✅ OTP sent successfully via Resend");
+    await sgMail.send(msg);
+
+    console.log("✅ OTP sent successfully via SendGrid");
 
     return res.status(200).json({
       message: "OTP sent to email",
