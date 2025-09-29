@@ -15,7 +15,7 @@ const PORT = process.env.PORT || 3000;
 dotenv.config();
 
 app.use(cors({
-  origin: 'http://localhost:5173',
+  origin: 'https://hack-mate-ten.vercel.app',
   credentials: true
 }));
 
