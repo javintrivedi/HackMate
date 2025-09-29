@@ -7,6 +7,7 @@ import bodyParser from 'body-parser';
 
 import AuthRouter from './Routes/AuthRouter.js';
 import ProfileRouter from './Routes/ProfileRouter.js';
+import MatchRouter from './Routes/MatchRouter.js';
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -23,6 +24,7 @@ app.use(bodyParser.json());
 
 app.use('/auth', AuthRouter);
 app.use('/profile', ProfileRouter);
+app.use('/match', MatchRouter);
 
 app.get('/', (req, res) => {
   res.send('Hello from Auth Backend!');
