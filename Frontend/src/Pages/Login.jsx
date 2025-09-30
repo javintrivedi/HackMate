@@ -32,9 +32,9 @@ const Login = () => {
         
         // Store user data in localStorage (optional)
         localStorage.setItem('user', JSON.stringify(data));
-        
-        // Navigate to dashboard on successful login
-        navigate('/dashboard');
+
+        // Navigate to welcome screen on successful login
+        navigate('/welcome');
       } else {
         // Handle error response
         const errorData = await response.json();
