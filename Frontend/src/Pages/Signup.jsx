@@ -102,12 +102,12 @@ const Signup = () => {
       <ToastContainer position="top-right" autoClose={3000} />
 
       <div className="flex flex-col items-center -mt-10 w-full max-w-md px-6">
-        <h1 className="text-6xl mb-10 text-[#395EAA] font-['Lexend_Exa'] font-bold">
+        <h1 className="text-5xl mb-10 text-[#395EAA] font-['Lexend_Exa'] font-normal">
           Sign Up
         </h1>
 
         {step === 1 ? (
-          <form className="w-full flex flex-col gap-4" onSubmit={handleSignupInit}>
+          <form className="w-full flex flex-col gap-4 text-md" onSubmit={handleSignupInit}>
             <input
               type="text"
               placeholder="Full Name"
@@ -149,7 +149,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center"
+              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex text-md items-center justify-center cursor-pointer"
             >
               {loading ? "Sending OTP..." : "Create Account"}
             </button>
@@ -168,7 +168,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center"
+              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center cursor-pointer"
             >
               {loading ? "Verifying OTP..." : "Verify & Signup"}
             </button>
@@ -180,9 +180,9 @@ const Signup = () => {
             Already have an account?{" "}
             <button
               onClick={() => navigate("/login")}
-              className="text-[#395EAA] hover:underline font-semibold"
+              className="text-[#395EAA] hover:underline font-semibold cursor-pointer"
             >
-              Sign in
+              Login
             </button>
           </p>
         </div>

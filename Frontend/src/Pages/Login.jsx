@@ -52,7 +52,7 @@ const Login = () => {
     <div className="h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat relative"
          style={{ backgroundImage: `url(${mainbg})` }}>
       <div className="flex flex-col items-center -mt-10 w-full max-w-md px-6">
-        <h1 className="text-6xl mb-10 text-[#395EAA] font-['Lexend_Exa'] font-bold">Login</h1>
+        <h1 className="text-5xl mb-10 text-[#395EAA] font-['Lexend_Exa'] font-normal">Login</h1>
         
         {error && (
           <div className="w-full mb-4 p-3 bg-red-100 border border-red-400 text-red-700 rounded-xl">
@@ -60,7 +60,7 @@ const Login = () => {
           </div>
         )}
         
-        <form className="w-full flex flex-col gap-4" onSubmit={handleLogin}>
+        <form className="w-full flex flex-col gap-4 text-md" onSubmit={handleLogin}>
           <input
             type="email"
             placeholder="SRM NetID (Email)"
@@ -81,7 +81,7 @@ const Login = () => {
           />
           <button
             type="submit"
-            className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center"
+            className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center cursor-pointer"
             disabled={loading}
           >
             {loading ? (
@@ -90,10 +90,10 @@ const Login = () => {
                   <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                   <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
                 </svg>
-                Signing in...
+                Logging in...
               </>
             ) : (
-              'Sign in'
+              'Login'
             )}
           </button>
         </form>
@@ -103,7 +103,7 @@ const Login = () => {
             Don't have an account?{' '}
             <button
               onClick={() => navigate('/signup')}
-              className="text-[#395EAA] hover:underline font-semibold"
+              className="text-[#395EAA] hover:underline font-semibold cursor-pointer"
             >
               Sign up
             </button>
