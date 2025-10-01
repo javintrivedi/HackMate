@@ -12,9 +12,9 @@ const Signup = () => {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
+  const [resending, setResending] = useState(false); // New state for resend
   const navigate = useNavigate();
 
-  // Validate SRM email before sending request
   const isValidSrmEmail = (email) => {
     return /^[a-zA-Z0-9._%+-]+@srmist\.edu\.in$/.test(email);
   };
@@ -91,6 +91,33 @@ const Signup = () => {
       toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
+    }
+  };
+
+  // Step 2: Resend OTP
+  const handleResendOtp = async () => {
+    setResending(true);
+    try {
+      const response = await fetch(
+        "https://hackmate-ybgv.onrender.com/auth/signup-init", // or "/auth/resend-otp" if available
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name, email, password }),
+        }
+      );
+
+      const data = await response.json();
+      if (response.ok) {
+        toast.success("OTP resent successfully!");
+      } else {
+        toast.error(data.message || "Failed to resend OTP.");
+      }
+    } catch (err) {
+      console.error("Resend OTP error:", err);
+      toast.error("Network error. Please try again.");
+    } finally {
+      setResending(false);
     }
   };
 
@@ -171,6 +198,16 @@ const Signup = () => {
               className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center cursor-pointer"
             >
               {loading ? "Verifying OTP..." : "Verify & Signup"}
+            </button>
+
+            {/* Resend OTP button */}
+            <button
+              type="button"
+              onClick={handleResendOtp}
+              disabled={resending}
+              className="w-full py-2 bg-gray-200 text-[#395EAA] rounded-xl hover:bg-gray-300 transition-colors flex items-center justify-center cursor-pointer"
+            >
+              {resending ? "Resending..." : "Resend OTP"}
             </button>
           </form>
         )}
