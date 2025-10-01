@@ -1,9 +1,9 @@
 import express from 'express';
 import dotenv from 'dotenv';
-
-import './Modules/db.js';
 import cors from 'cors';
 import bodyParser from 'body-parser';
+
+import './Modules/db.js';
 
 import AuthRouter from './Routes/AuthRouter.js';
 import ProfileRouter from './Routes/ProfileRouter.js';
@@ -14,31 +14,32 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// your deployed backend URL (or set SELF_URL in env)
-const SELF_URL = process.env.SELF_URL || 'https://hack-mate-backend.onrender.com';
+// ✅ Allow multiple origins
+const allowedOrigins = [
+  "https://hack-mate-ten.vercel.app", // deployed frontend
+  "http://localhost:5173"             // local dev
+];
 
 app.use(cors({
-  origin: 'https://hack-mate-ten.vercel.app',
+  origin: function (origin, callback) {
+    // Allow requests with no origin (like mobile apps or curl)
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.includes(origin)) {
+      return callback(null, true);
+    } else {
+      return callback(new Error("Not allowed by CORS"));
+    }
+  },
   credentials: true
 }));
 
 app.use(bodyParser.json());
 
+// Routers
 app.use('/auth', AuthRouter);
 app.use('/profile', ProfileRouter);
 app.use('/match', MatchRouter);
 
-app.get('/', (req, res) => {
-  res.send('Hello from Auth Backend!');
-});
-
 app.listen(PORT, () => {
-  console.log(`Server running at http://localhost:${PORT}`);
-
-  // 🔄 Self-ping every 14 minutes to prevent Render sleep
-  setInterval(() => {
-    fetch(SELF_URL)
-      .then(res => console.log(`[self-ping] status: ${res.status}`))
-      .catch(err => console.error('[self-ping] failed:', err));
-  }, 14 * 60 * 1000); // 14 minutes
+  console.log(`Server running on port ${PORT}`);
 });
