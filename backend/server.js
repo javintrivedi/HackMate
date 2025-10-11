@@ -42,4 +42,5 @@ app.use('/match', MatchRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
+  console.log(`Mazza aara hai :)`)
 });
