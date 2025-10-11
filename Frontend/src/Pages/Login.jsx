@@ -13,9 +13,10 @@ const Login = () => {
     e.preventDefault();
     setLoading(true);
     setError('');
+    const Backend=import.meta.env.VITE_BACKEND_URL|| 'http://localhost:3000';
 
     try {
-      const response = await fetch('https://hackmate-ybgv.onrender.com/auth/login', {
+      const response = await fetch(`${Backend}/auth/login`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

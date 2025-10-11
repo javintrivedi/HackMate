@@ -14,6 +14,7 @@ const Signup = () => {
   const [loading, setLoading] = useState(false);
   const [resending, setResending] = useState(false); // New state for resend
   const navigate = useNavigate();
+  const Backend = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
 
   const isValidSrmEmail = (email) => {
     return /^[a-zA-Z0-9._%+-]+@srmist\.edu\.in$/.test(email);
@@ -38,7 +39,7 @@ const Signup = () => {
 
     try {
       const response = await fetch(
-        "https://hackmate-ybgv.onrender.com/auth/signup-init",
+        `${Backend}/auth/signup-init`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -69,7 +70,7 @@ const Signup = () => {
 
     try {
       const response = await fetch(
-        "https://hackmate-ybgv.onrender.com/auth/verify-otp",
+        `${Backend}/auth/verify-otp`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -99,7 +100,7 @@ const Signup = () => {
     setResending(true);
     try {
       const response = await fetch(
-        "https://hackmate-ybgv.onrender.com/auth/signup-init", // or "/auth/resend-otp" if available
+        `${Backend}/auth/signup-init`, // or "/auth/resend-otp" if available
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
