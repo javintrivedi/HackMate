@@ -5,6 +5,9 @@ import Login from './Pages/Login'
 import Signup from './Pages/Signup'
 import GetStarted from './Pages/GetStarted'
 import WelcomeScreen from './Pages/WelcomeScreen'
+import OnboardingStep1 from './Pages/OnboardingStep1'
+import OnboardingStep2 from './Pages/OnboardingStep2'
+import OnboardingStep3 from './Pages/OnboardingStep3'
 
 const App = () => {
   return (
@@ -19,6 +22,9 @@ const App = () => {
           <Route path="/signup" element={<Signup />} />
           <Route path="/get-started" element={<GetStarted />} />
           <Route path='/welcome' element={<WelcomeScreen/>}/>
+          <Route path='/details' element={<OnboardingStep1/>}/>
+          <Route path='/your-info' element={<OnboardingStep2/>}/>
+          <Route path='/skills' element={<OnboardingStep3/>}/>
           {/* Optional: Catch-all route for 404s */}
           <Route path="*" element={<LandingScreen />} />
         </Routes>
