@@ -1,8 +1,11 @@
 import React from 'react'
 import { ArrowRight, HelpCircle } from 'lucide-react';
 import { motion } from 'framer-motion';
+import { useNavigate } from 'react-router-dom';
 
 const GetStarted = () => {
+  const navigate = useNavigate();
+
   // Variants for animation
   const containerVariants = {
   };
@@ -112,6 +115,7 @@ const GetStarted = () => {
                 className="bg-[#3DB659] hover:bg-green-600 text-white font-semibold px-8 py-2 rounded-lg flex items-center gap-2 cursor-pointer transition-colors shadow-lg"
                 variants={buttonVariants}
                 whileHover="hover"
+                onClick={() => navigate('/details')}
               >
                 Next
                 <ArrowRight size={20} />
