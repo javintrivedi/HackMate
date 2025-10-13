@@ -24,4 +24,79 @@ const updateProfile = async (req, res) => {
   }
 };
 
-export { getProfile, updateProfile };
+// ✅ Create new user (POST route)
+const createUser = async (req, res) => {
+  try {
+    const {
+      name,
+      age,
+      phoneNumber,
+      email,
+      password,
+      year,
+      gender,
+      skills,
+      trackPreference,
+      bio,
+      raNumber,
+      techStack,
+      mostPreferredRole,
+      hackathonsParticipated,
+      hackathonsWon,
+      projects,
+      mostPreferredDomain,
+      github,
+      linkedin,
+      instagram,
+    } = req.body;
+
+    // Validate required fields
+    if (!name || !age || !phoneNumber || !email || !password) {
+      return res.status(400).json({ success: false, message: "Missing required fields" });
+    }
+
+    // Check if email or phone already exists
+    const existingUser = await UserModel.findOne({
+      $or: [{ email }, { phoneNumber }],
+    });
+    if (existingUser) {
+      return res.status(400).json({ success: false, message: "User with this email or phone number already exists" });
+    }
+
+    // Create and save new user
+    const newUser = new UserModel({
+      name,
+      age,
+      phoneNumber,
+      email,
+      password, // you should hash it if this is for production!
+      year,
+      gender,
+      skills,
+      trackPreference,
+      bio,
+      raNumber,
+      techStack,
+      mostPreferredRole,
+      hackathonsParticipated,
+      hackathonsWon,
+      projects,
+      mostPreferredDomain,
+      github,
+      linkedin,
+      instagram,
+    });
+
+    await newUser.save();
+
+    res.status(201).json({
+      success: true,
+      message: "User created successfully",
+      user: newUser,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: "Error creating user", error: err.message });
+  }
+};
+
+export { getProfile, updateProfile, createUser };
