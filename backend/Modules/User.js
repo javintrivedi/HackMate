@@ -3,8 +3,8 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   name: { type: String, required: true },
-  age :{type:Number, required:true},
-  phoneNumber:{type:Number, requited:true, unique:true},  
+  age :{type:Number, },
+  phoneNumber:{type:Number, unique:true},  
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   year: { type: String },
