@@ -41,21 +41,13 @@ export default function OnboardingStep2({ onNext, onBack }) {
 
     setLoading(true);
     try {
-      const res = await fetch("https://hackmate-ybgv.onrender.com/user/create", {
-        method: "POST",
+      const res = await fetch("https://hackmate-ybgv.onrender.com/profile/update", {
+        method: "PUT",
         headers: {
           "Content-Type": "application/json",
+          "Authorization": `Bearer ${localStorage.getItem("token")}`
         },
-        body: JSON.stringify({
-          name: formData.name,
-          age: Number(formData.age),
-          phoneNumber: formData.phone,
-          email: formData.email,
-          password: "temp123", // temporary for onboarding
-          year: formData.year,
-          gender: formData.gender,
-          raNumber: formData.regNo,
-        }),
+        body: JSON.stringify(formData),
       });
 
       const data = await res.json();

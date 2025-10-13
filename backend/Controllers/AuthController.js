@@ -68,6 +68,7 @@ const signupInit = async (req, res) => {
   }
 };
 
+
 // --- VERIFY OTP ---
 const verifyOtp = async (req, res) => {
   try {
@@ -75,9 +76,7 @@ const verifyOtp = async (req, res) => {
 
     const storedData = otpStore[email];
     if (!storedData) {
-      return res
-        .status(400)
-        .json({ message: "OTP expired or not requested", success: false });
+      return res.status(400).json({ message: "OTP expired or not requested", success: false });
     }
 
     // check expiry
@@ -91,13 +90,16 @@ const verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "Invalid OTP", success: false });
     }
 
-    // create user
-    const newUser = new UserModel({
-      name: storedData.name,
-      email: storedData.email,
-      password: storedData.password,
-    });
-    await newUser.save();
+    // ✅ create user with minimal info
+    let newUser = await UserModel.findOne({ email });
+    if (!newUser) {
+      newUser = new UserModel({
+        name: storedData.name,
+        email: storedData.email,
+        password: storedData.password,
+      });
+      await newUser.save();
+    }
 
     // cleanup
     delete otpStore[email];
@@ -113,7 +115,7 @@ const verifyOtp = async (req, res) => {
       message: "Signup successful",
       success: true,
       token,
-      user: { name: newUser.name, email: newUser.email },
+      user: { name: newUser.name, email: newUser.email, id: newUser._id },
     });
   } catch (error) {
     console.error("❌ Error verifying OTP:", error);
