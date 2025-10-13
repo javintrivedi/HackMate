@@ -37,35 +37,35 @@ export default function OnboardingStep2({ onNext, onBack }) {
   };
 
   const handleNext = async () => {
-    if (!validateForm()) return;
+  if (!validateForm()) return;
 
-    setLoading(true);
-    try {
-      const res = await fetch("https://hackmate-ybgv.onrender.com/profile/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          "Authorization": `Bearer ${localStorage.getItem("token")}`
-        },
-        body: JSON.stringify(formData),
-      });
+  setLoading(true);
+  try {
+    const res = await fetch("https://hackmate-ybgv.onrender.com/profile/update", {
+      method: "PUT",
+      headers: {
+        "Content-Type": "application/json",
+        "Authorization": `Bearer ${localStorage.getItem("token")}`
+      },
+      body: JSON.stringify(formData),
+    });
 
-      const data = await res.json();
-      if (data.success) {
-        console.log("✅ User created:", data.user);
-        setProgress(100);
-        onNext?.(formData);
-        navigate("/skills"); // next onboarding step
-      } else {
-        setError(data.message || "Something went wrong. Please try again.");
-      }
-    } catch (err) {
-      console.error("❌ Error creating user:", err);
-      setError("Server error. Please try again later.");
-    } finally {
-      setLoading(false);
+    const data = await res.json();
+    if (data.success) {
+      console.log("✅ Profile updated:", data.profile);
+      setProgress(100);
+      onNext?.(formData);
+      navigate("/skills"); // next onboarding step
+    } else {
+      setError(data.message || "Something went wrong. Please try again.");
     }
-  };
+  } catch (err) {
+    console.error("❌ Error updating profile:", err);
+    setError("Server error. Please try again later.");
+  } finally {
+    setLoading(false);
+  }
+};
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 font-sans">

@@ -12,21 +12,20 @@ const Signup = () => {
   const [otp, setOtp] = useState("");
   const [step, setStep] = useState(1);
   const [loading, setLoading] = useState(false);
-  const [resending, setResending] = useState(false); // New state for resend
+  const [resending, setResending] = useState(false);
   const navigate = useNavigate();
-  const Backend = import.meta.env.VITE_BACKEND_URL || 'http://localhost:3000';
+  const Backend = import.meta.env.VITE_BACKEND_URL || "http://localhost:3000";
 
-  const isValidSrmEmail = (email) => {
-    return /^[a-zA-Z0-9._%+-]+@srmist\.edu\.in$/.test(email);
-  };
+  const isValidSrmEmail = (email) =>
+    /^[a-zA-Z0-9._%+-]+@srmist\.edu\.in$/.test(email);
 
-  // Step 1: Signup Init
+  // Step 1: Signup Init (send OTP)
   const handleSignupInit = async (e) => {
     e.preventDefault();
     setLoading(true);
 
     if (!isValidSrmEmail(email)) {
-      toast.error("Email must be a valid SRMIST email (example@srmist.edu.in)");
+      toast.error("Email must be a valid SRMIST email.");
       setLoading(false);
       return;
     }
@@ -38,25 +37,21 @@ const Signup = () => {
     }
 
     try {
-      const response = await fetch(
-        `${Backend}/auth/signup-init`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-        }
-      );
+      const res = await fetch(`${Backend}/auth/signup-init`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
 
-      const data = await response.json();
-
-      if (response.ok) {
+      if (res.ok && data.success) {
         toast.success("OTP sent to your email!");
         setStep(2);
       } else {
-        toast.error(data.message || "Signup failed. Please try again.");
+        toast.error(data.message || "Signup failed. Try again.");
       }
     } catch (err) {
-      console.error("Signup error:", err);
+      console.error(err);
       toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
@@ -69,54 +64,48 @@ const Signup = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        `${Backend}/auth/verify-otp`,
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ email, otp }),
-        }
-      );
+      const res = await fetch(`${Backend}/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email, otp }),
+      });
+      const data = await res.json();
 
-      const data = await response.json();
-      if (response.ok) {
+      if (res.ok && data.success) {
         toast.success("Signup successful!");
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/get-started");
+        navigate("/onboarding-step2"); // go to profile update
       } else {
         toast.error(data.message || data.error || "OTP verification failed.");
       }
     } catch (err) {
-      console.error("Verify OTP error:", err);
+      console.error(err);
       toast.error("Network error. Please try again.");
     } finally {
       setLoading(false);
     }
   };
 
-  // Step 2: Resend OTP
+  // Resend OTP
   const handleResendOtp = async () => {
     setResending(true);
     try {
-      const response = await fetch(
-        `${Backend}/auth/signup-init`, // or "/auth/resend-otp" if available
-        {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ name, email, password }),
-        }
-      );
+      const res = await fetch(`${Backend}/auth/signup-init`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, email, password }),
+      });
+      const data = await res.json();
 
-      const data = await response.json();
-      if (response.ok) {
+      if (res.ok && data.success) {
         toast.success("OTP resent successfully!");
       } else {
         toast.error(data.message || "Failed to resend OTP.");
       }
     } catch (err) {
-      console.error("Resend OTP error:", err);
-      toast.error("Network error. Please try again.");
+      console.error(err);
+      toast.error("Network error. Try again.");
     } finally {
       setResending(false);
     }
@@ -124,7 +113,7 @@ const Signup = () => {
 
   return (
     <div
-      className="h-screen flex flex-col justify-center items-center bg-cover bg-center bg-no-repeat relative"
+      className="h-screen flex flex-col justify-center items-center bg-cover bg-center relative"
       style={{ backgroundImage: `url(${mainbg})` }}
     >
       <ToastContainer position="top-right" autoClose={3000} />
@@ -135,7 +124,7 @@ const Signup = () => {
         </h1>
 
         {step === 1 ? (
-          <form className="w-full flex flex-col gap-4 text-md" onSubmit={handleSignupInit}>
+          <form className="w-full flex flex-col gap-4" onSubmit={handleSignupInit}>
             <input
               type="text"
               placeholder="Full Name"
@@ -177,7 +166,7 @@ const Signup = () => {
             <button
               type="submit"
               disabled={loading}
-              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex text-md items-center justify-center cursor-pointer"
+              className="w-full py-3 bg-[#4A6CB3] text-white rounded-xl hover:bg-blue-700 transition-colors flex items-center justify-center cursor-pointer"
             >
               {loading ? "Sending OTP..." : "Create Account"}
             </button>
@@ -200,8 +189,6 @@ const Signup = () => {
             >
               {loading ? "Verifying OTP..." : "Verify & Signup"}
             </button>
-
-            {/* Resend OTP button */}
             <button
               type="button"
               onClick={handleResendOtp}
