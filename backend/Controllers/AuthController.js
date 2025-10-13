@@ -70,6 +70,7 @@ const signupInit = async (req, res) => {
 
 
 // --- VERIFY OTP ---
+// --- VERIFY OTP ---
 const verifyOtp = async (req, res) => {
   try {
     const { email, otp } = req.body;
@@ -90,16 +91,13 @@ const verifyOtp = async (req, res) => {
       return res.status(400).json({ message: "Invalid OTP", success: false });
     }
 
-    // ✅ create user with minimal info
-    let newUser = await UserModel.findOne({ email });
-    if (!newUser) {
-      newUser = new UserModel({
-        name: storedData.name,
-        email: storedData.email,
-        password: storedData.password,
-      });
-      await newUser.save();
-    }
+    // create user (basic info only)
+    const newUser = new UserModel({
+      name: storedData.name,
+      email: storedData.email,
+      password: storedData.password,
+    });
+    await newUser.save();
 
     // cleanup
     delete otpStore[email];
@@ -119,13 +117,10 @@ const verifyOtp = async (req, res) => {
     });
   } catch (error) {
     console.error("❌ Error verifying OTP:", error);
-    res.status(500).json({
-      message: "Error verifying OTP",
-      success: false,
-      error: error.message,
-    });
+    res.status(500).json({ message: "Error verifying OTP", success: false, error: error.message });
   }
 };
+
 
 // --- LOGIN ---
 const login = async (req, res) => {

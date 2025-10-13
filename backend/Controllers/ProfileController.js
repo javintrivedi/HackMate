@@ -16,7 +16,11 @@ const getProfile = async (req, res) => {
 const updateProfile = async (req, res) => {
   try {
     const updates = req.body;
+
+    // Update only the logged-in user
     const user = await UserModel.findByIdAndUpdate(req.user.id, updates, { new: true }).select("-password");
+
+    if (!user) return res.status(404).json({ message: "User not found" });
 
     res.json({ success: true, message: "Profile updated", profile: user });
   } catch (err) {
