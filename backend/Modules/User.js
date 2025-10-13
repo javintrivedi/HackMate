@@ -3,6 +3,8 @@ const Schema = mongoose.Schema;
 
 const UserSchema = new Schema({
   name: { type: String, required: true },
+  age :{type:Number, required:true},
+  phoneNumber:{type:Number, requited:true, unique:true},  
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
   year: { type: String },
@@ -22,6 +24,9 @@ const UserSchema = new Schema({
   hackathonsWon: { type: String, default: "" },
   projects: { type: [String], default: [] },
   mostPreferredDomain: { type: String },
+  github:{type: String, default: ""},
+  linkedin:{type: String, default: ""},
+  instagram:{type: String, default: ""},
 
   // Matching fields
   selectedUsers: { type: [Schema.Types.ObjectId], ref: "authuser", default: [] },
