@@ -16,29 +16,62 @@ export default function OnboardingStep2({ onNext, onBack }) {
   });
 
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const validateForm = () => {
-    const regPattern = /^RA\d{13}$/; // starts with RA + 13 digits = 15 total
+    const regPattern = /^RA\d{13}$/; // starts with RA + 13 digits
     if (!formData.name || !formData.age || !formData.phone || !formData.email || !formData.year || !formData.gender || !formData.regNo) {
       setError("Please fill out all fields.");
       return false;
     }
     if (!regPattern.test(formData.regNo)) {
-      setError("Registration number must be 15 digits and follow RAxxxxxxxxxxxxxx format.");
+      setError("Registration number must be in RAxxxxxxxxxxxxx format (RA + 13 digits).");
       return false;
     }
     setError("");
     return true;
   };
 
-  const handleNext = () => {
-    if (validateForm()) {
-      setProgress(100);
-      onNext?.(formData);
+  const handleNext = async () => {
+    if (!validateForm()) return;
+
+    setLoading(true);
+    try {
+      const res = await fetch("https://hackmate-ybgv.onrender.com/user/create", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          name: formData.name,
+          age: Number(formData.age),
+          phoneNumber: formData.phone,
+          email: formData.email,
+          password: "temp123", // temporary for onboarding
+          year: formData.year,
+          gender: formData.gender,
+          raNumber: formData.regNo,
+        }),
+      });
+
+      const data = await res.json();
+      if (data.success) {
+        console.log("✅ User created:", data.user);
+        setProgress(100);
+        onNext?.(formData);
+        navigate("/skills"); // next onboarding step
+      } else {
+        setError(data.message || "Something went wrong. Please try again.");
+      }
+    } catch (err) {
+      console.error("❌ Error creating user:", err);
+      setError("Server error. Please try again later.");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -52,7 +85,6 @@ export default function OnboardingStep2({ onNext, onBack }) {
             style={{ width: `${progress}%` }}
           ></div>
         </div>
-        <p className="text-right text-sm text-gray-700 mt-2"></p>
       </div>
 
       {/* Form Section */}
@@ -106,7 +138,6 @@ export default function OnboardingStep2({ onNext, onBack }) {
               className="p-3 rounded-xl border border-blue-300 focus:outline-none focus:ring-2 focus:ring-blue-500"
             />
 
-            {/* Dropdowns */}
             <select
               name="year"
               value={formData.year}
@@ -148,7 +179,7 @@ export default function OnboardingStep2({ onNext, onBack }) {
               onClick={() => {
                 setProgress(33);
                 onBack?.();
-                navigate('/details');
+                navigate("/details");
               }}
               className="bg-gray-300 hover:bg-gray-400 text-gray-800 font-bold py-2 px-6 rounded-xl flex items-center gap-2 transition-all duration-300"
             >
@@ -156,14 +187,13 @@ export default function OnboardingStep2({ onNext, onBack }) {
             </button>
 
             <button
-              onClick={() => {
-                setProgress(50);
-                onNext?.();
-                navigate('/skills');
-              }}
-              className="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2 transition-all duration-300"
+              onClick={handleNext}
+              disabled={loading}
+              className={`${
+                loading ? "bg-green-300" : "bg-green-500 hover:bg-green-600"
+              } text-white font-bold py-2 px-6 rounded-xl flex items-center gap-2 transition-all duration-300`}
             >
-              Next <ArrowRight size={18} />
+              {loading ? "Saving..." : <>Next <ArrowRight size={18} /></>}
             </button>
           </div>
         </div>
