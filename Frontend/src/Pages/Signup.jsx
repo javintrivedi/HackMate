@@ -75,7 +75,7 @@ const Signup = () => {
         toast.success("Signup successful!");
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
-        navigate("/onboarding-step2"); // go to profile update
+        navigate("/details"); 
       } else {
         toast.error(data.message || data.error || "OTP verification failed.");
       }
