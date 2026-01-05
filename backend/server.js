@@ -8,6 +8,7 @@ import './Modules/db.js';
 import AuthRouter from './Routes/AuthRouter.js';
 import ProfileRouter from './Routes/ProfileRouter.js';
 import MatchRouter from './Routes/MatchRouter.js';
+import UserRouter from "./Routes/UserRouter.js";
 
 dotenv.config();
 
@@ -39,6 +40,7 @@ app.use(bodyParser.json());
 app.use('/auth', AuthRouter);
 app.use('/profile', ProfileRouter);
 app.use('/match', MatchRouter);
+app.use("/users", UserRouter);
 
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
