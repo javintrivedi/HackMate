@@ -30,22 +30,22 @@ const updateProfile = async (req, res) => {
       });
     }
 
-    // ✅ ALL fields allowed across onboarding steps
     const allowedFields = [
       "name",
       "age",
       "phoneNumber",
-      "email",
       "year",
       "gender",
       "raNumber",
       "bio",
       "skills",
       "techStack",
+      "trackPreference",
       "github",
       "linkedin",
       "instagram",
     ];
+
 
     const updates = {};
 
