@@ -18,7 +18,7 @@ const UserSchema = new Schema(
     age: { type: Number, min: 16, max: 100 },
 
     phoneNumber: {
-      type: String,
+      type: Number,
       unique: true,
       sparse: true,
     },
