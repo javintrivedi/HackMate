@@ -9,6 +9,7 @@ import OnboardingStep1 from './Pages/OnboardingStep1'
 import OnboardingStep2 from './Pages/OnboardingStep2'
 import OnboardingStep3 from './Pages/OnboardingStep3'
 import ConfirmDetails from './Pages/ConfirmDetails'
+import Discover from "./Pages/Discover";
 
 const App = () => {
   return (
@@ -27,6 +28,7 @@ const App = () => {
           <Route path='/your-info' element={<OnboardingStep2/>}/>
           <Route path='/skills' element={<OnboardingStep3/>}/>
           <Route path='/confirmDetails' element={<ConfirmDetails/>}/>
+          <Route path="/discover" element={<Discover />} />
           {/* Optional: Catch-all route for 404s */}
           <Route path="*" element={<LandingScreen />} />
         </Routes>
