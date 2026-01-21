@@ -18,6 +18,10 @@ import MySelections from "./Pages/MySelections";
 import MyMatches from "./Pages/MyMatches";
 import Profile from "./Pages/Profile";
 
+// 🔥 CHAT PAGES (to be created next)
+import ChatListPage from "./Pages/ChatListPage";
+import ChatPage from "./Pages/ChatPage";
+
 const App = () => {
   return (
     <Router>
@@ -42,7 +46,9 @@ const App = () => {
         <Route path="/matches" element={<MyMatches />} />
         <Route path="/profile" element={<Profile />} />
 
-
+        {/* 🔥 CHAT SYSTEM */}
+        <Route path="/chat" element={<ChatListPage />} />
+        <Route path="/chat/:chatId" element={<ChatPage />} />
 
         {/* Fallback */}
         <Route path="*" element={<LandingScreen />} />
