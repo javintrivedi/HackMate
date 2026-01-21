@@ -33,8 +33,9 @@ const Navbar = () => {
 
       {/* Right */}
       <div className="flex items-center gap-6">
+        {/* 🔥 CHAT ICON → CHAT LIST */}
         <button
-          onClick={() => navigate("/matches")}
+          onClick={() => navigate("/chat")}
           className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:scale-110 transition"
         >
           <MessageCircle />
