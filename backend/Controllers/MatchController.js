@@ -30,7 +30,6 @@ const swipeUser = async (req, res) => {
       });
     }
 
-    // Prevent duplicate swipe / match
     if (
       user.matches.includes(selectedUserId) ||
       user.selectedUsers.includes(selectedUserId)
@@ -88,7 +87,7 @@ const acceptRequest = async (req, res) => {
       });
     }
 
-    // 🧹 Cleanup pending + selected
+    // 🧹 Cleanup
     user.pendingRequests = user.pendingRequests.filter(
       (id) => id.toString() !== requesterId
     );
@@ -97,7 +96,6 @@ const acceptRequest = async (req, res) => {
       (id) => id.toString() !== userId
     );
 
-    // 🤝 Add to matches
     if (!user.matches.includes(requesterId)) {
       user.matches.push(requesterId);
     }
@@ -106,10 +104,16 @@ const acceptRequest = async (req, res) => {
       requester.matches.push(userId);
     }
 
-    // 🔥 CREATE CHAT (USP CORE)
-    await ChatModel.create({
-      participants: [userId, requesterId],
+    // 🔥 CREATE CHAT (only if not exists)
+    const existingChat = await ChatModel.findOne({
+      participants: { $all: [userId, requesterId] },
     });
+
+    if (!existingChat) {
+      await ChatModel.create({
+        participants: [userId, requesterId],
+      });
+    }
 
     await Promise.all([user.save(), requester.save()]);
 
@@ -127,9 +131,7 @@ const acceptRequest = async (req, res) => {
 };
 
 /*
-|--------------------------------------------------------------------------
-| REJECT REQUEST
-|--------------------------------------------------------------------------
+|--------------------------------------------------------------------------|
 */
 const rejectRequest = async (req, res) => {
   try {
@@ -140,13 +142,6 @@ const rejectRequest = async (req, res) => {
       UserModel.findById(userId),
       UserModel.findById(requesterId),
     ]);
-
-    if (!user || !requester) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
 
     user.pendingRequests = user.pendingRequests.filter(
       (id) => id.toString() !== requesterId
@@ -163,7 +158,6 @@ const rejectRequest = async (req, res) => {
       message: "Request rejected",
     });
   } catch (err) {
-    console.error(err);
     res.status(500).json({
       success: false,
       message: "Error rejecting request",
@@ -171,100 +165,31 @@ const rejectRequest = async (req, res) => {
   }
 };
 
-/*
-|--------------------------------------------------------------------------
-| GET MATCHES
-|--------------------------------------------------------------------------
-*/
 const getMatches = async (req, res) => {
-  try {
-    const user = await UserModel.findById(req.user.id).populate(
-      "matches",
-      "name skills trackPreference bio"
-    );
+  const user = await UserModel.findById(req.user.id).populate(
+    "matches",
+    "name skills bio"
+  );
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      matches: user.matches,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching matches",
-    });
-  }
+  res.json({ success: true, matches: user.matches });
 };
 
-/*
-|--------------------------------------------------------------------------
-| GET SELECTED USERS
-|--------------------------------------------------------------------------
-*/
 const getSelectedUsers = async (req, res) => {
-  try {
-    const user = await UserModel.findById(req.user.id).populate(
-      "selectedUsers",
-      "name skills trackPreference bio"
-    );
+  const user = await UserModel.findById(req.user.id).populate(
+    "selectedUsers",
+    "name skills bio"
+  );
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      selectedUsers: user.selectedUsers,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching selected users",
-    });
-  }
+  res.json({ success: true, selectedUsers: user.selectedUsers });
 };
 
-/*
-|--------------------------------------------------------------------------
-| GET PENDING REQUESTS
-|--------------------------------------------------------------------------
-*/
 const getPendingRequests = async (req, res) => {
-  try {
-    const user = await UserModel.findById(req.user.id).populate(
-      "pendingRequests",
-      "name skills trackPreference bio"
-    );
+  const user = await UserModel.findById(req.user.id).populate(
+    "pendingRequests",
+    "name skills bio"
+  );
 
-    if (!user) {
-      return res.status(404).json({
-        success: false,
-        message: "User not found",
-      });
-    }
-
-    res.json({
-      success: true,
-      pendingRequests: user.pendingRequests,
-    });
-  } catch (err) {
-    console.error(err);
-    res.status(500).json({
-      success: false,
-      message: "Error fetching pending requests",
-    });
-  }
+  res.json({ success: true, pendingRequests: user.pendingRequests });
 };
 
 export {

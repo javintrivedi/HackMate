@@ -1,10 +1,16 @@
 import express from "express";
 import isAuthenticated from "../Middlewares/Auth.js";
-import { getChatByUser } from "../Controllers/ChatController.js";
+import {
+  getMyChats,
+  getChatById,
+} from "../Controllers/ChatController.js";
 
 const router = express.Router();
 
-// GET chat with a matched user
-router.get("/:otherUserId", isAuthenticated, getChatByUser);
+// 🔥 All chats of logged-in user (Navbar chat list)
+router.get("/", isAuthenticated, getMyChats);
+
+// 🔥 Open specific chat by chatId
+router.get("/id/:chatId", isAuthenticated, getChatById);
 
 export default router;
