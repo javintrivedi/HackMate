@@ -12,11 +12,14 @@ const API_URL =
 const MyMatches = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
+  const myUser = JSON.parse(localStorage.getItem("user"));
 
   const [users, setUsers] = useState([]);
+  const [chats, setChats] = useState([]);
   const [active, setActive] = useState(null);
 
-  const fetchData = async () => {
+  // 🔹 Fetch matches
+  const fetchMatches = async () => {
     const res = await fetch(`${API_URL}/match/matches`, {
       headers: { Authorization: `Bearer ${token}` },
     });
@@ -24,9 +27,33 @@ const MyMatches = () => {
     setUsers(data.matches || []);
   };
 
+  // 🔹 Fetch chats (for chatId mapping)
+  const fetchChats = async () => {
+    const res = await fetch(`${API_URL}/chat`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+    const data = await res.json();
+    setChats(data.chats || []);
+  };
+
   useEffect(() => {
-    fetchData();
+    fetchMatches();
+    fetchChats();
   }, []);
+
+  // 🔥 Find chatId for a matched user
+  const openChatWithUser = (userId) => {
+    const chat = chats.find((c) =>
+      c.participants.some((p) => p._id === userId)
+    );
+
+    if (!chat) {
+      alert("Chat not found. Try again.");
+      return;
+    }
+
+    navigate(`/chat/${chat._id}`);
+  };
 
   return (
     <div className="min-h-screen bg-[#D7EEFF]">
@@ -55,11 +82,17 @@ const MyMatches = () => {
         ) : (
           <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-8">
             {users.map((u) => (
-              <UserCard
-                key={u._id}
-                user={u}
-                onClick={setActive}
-              />
+              <div key={u._id} className="relative">
+                <UserCard user={u} onClick={setActive} />
+
+                {/* 🔥 CHAT BUTTON */}
+                <button
+                  onClick={() => openChatWithUser(u._id)}
+                  className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm hover:bg-blue-700"
+                >
+                  Chat
+                </button>
+              </div>
             ))}
           </div>
         )}
