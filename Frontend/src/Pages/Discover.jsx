@@ -17,6 +17,11 @@ const swipeVariants = {
   right: { x: 300, opacity: 0, rotate: 8, transition: { duration: 0.4 } },
 };
 
+// 🔥 SAFE SHUFFLE (NO MUTATION)
+const shuffleArray = (arr) => {
+  return [...arr].sort(() => Math.random() - 0.5);
+};
+
 const Discover = () => {
   const navigate = useNavigate();
 
@@ -34,13 +39,18 @@ const Discover = () => {
 
   const token = localStorage.getItem("token");
 
-  // Fetch discover users + counts
+  // 🔹 Fetch discover users + counts
   useEffect(() => {
     fetch(`${API_URL}/users/discover`, {
       headers: { Authorization: `Bearer ${token}` },
     })
       .then((res) => res.json())
-      .then((data) => data.success && setUsers(data.users));
+      .then((data) => {
+        if (data.success && data.users?.length) {
+          setUsers(shuffleArray(data.users)); // 🔥 RANDOM HERE
+          setIndex(0); // reset safety
+        }
+      });
 
     refreshCounts();
   }, []);
@@ -162,7 +172,7 @@ const Discover = () => {
         </motion.button>
       </div>
 
-      {/* 🔥 BOTTOM BUTTONS (NOW CLICKABLE) */}
+      {/* BOTTOM BUTTONS */}
       <div className="mt-10 flex justify-center gap-10">
         <BottomPill
           label="My Selections"
@@ -188,7 +198,7 @@ const Discover = () => {
           onClose={() => setActiveUser(null)}
           onSelect={async () => {
             setActiveUser(null);
-            await swipeRight(); // ⭐ SAME RIGHT SWIPE LOGIC
+            await swipeRight();
           }}
         />
       )}
