@@ -4,7 +4,10 @@ import Navbar from "../components/Navbar";
 import UserCard from "../components/UserCard";
 import UserOverlay from "../components/UserOverlay";
 
-const API_URL = "http://localhost:3000";
+const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:3000"
+    : "https://hackmate-ybgv.onrender.com";
 
 const PendingRequests = () => {
   const navigate = useNavigate();
@@ -29,7 +32,6 @@ const PendingRequests = () => {
     <div className="min-h-screen bg-[#D7EEFF]">
       <Navbar />
 
-      {/* Header */}
       <div className="max-w-7xl mx-auto pt-28 px-6">
         <div className="flex items-center gap-4 mb-8">
           <button
@@ -38,12 +40,12 @@ const PendingRequests = () => {
           >
             ←
           </button>
+
           <div className="bg-white px-6 py-2 rounded-full shadow">
             Pending Requests ({users.length})
           </div>
         </div>
 
-        {/* Grid */}
         <div className="grid grid-cols-2 md:grid-cols-4 xl:grid-cols-5 gap-8">
           {users.map((u) => (
             <UserCard
@@ -78,7 +80,6 @@ const PendingRequests = () => {
         </div>
       </div>
 
-      {/* Overlay */}
       {active && (
         <UserOverlay
           user={active}

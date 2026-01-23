@@ -32,12 +32,11 @@ const MySelections = () => {
     <div className="min-h-screen bg-[#D7EEFF]">
       <Navbar />
 
-      {/* Header */}
       <div className="max-w-7xl mx-auto pt-28 px-6">
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => navigate("/discover")}
-            className="w-10 h-10 bg-white rounded-full shadow flex items-center justify-center hover:scale-110 transition"
+            className="w-10 h-10 bg-white rounded-full shadow flex items-center justify-center hover:scale-110"
           >
             ←
           </button>
@@ -47,7 +46,6 @@ const MySelections = () => {
           </div>
         </div>
 
-        {/* Grid */}
         {users.length === 0 ? (
           <p className="text-center text-gray-500 mt-20">
             You haven’t selected anyone yet 👀
@@ -65,7 +63,6 @@ const MySelections = () => {
         )}
       </div>
 
-      {/* Overlay */}
       {active && (
         <UserOverlay
           user={active}

@@ -138,9 +138,10 @@ const Discover = () => {
               className="w-[360px] h-[470px] bg-white rounded-2xl shadow-2xl overflow-hidden cursor-pointer"
             >
               <img
-                src="https://i.pravatar.cc/600"
+                src={user.profileImage || "https://i.pravatar.cc/600"}
                 className="w-full h-[60%] object-cover"
               />
+
 
               <div className="p-5">
                 <h3 className="text-2xl font-bold">{user.name}</h3>

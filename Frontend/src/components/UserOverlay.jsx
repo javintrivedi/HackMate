@@ -26,7 +26,13 @@ const UserOverlay = ({ user, onClose, showAccept, onAccept }) => {
         </button>
 
         {/* Left */}
-        <div className="w-1/3 bg-gray-200" />
+        <div className="w-1/3 bg-gray-200">
+          <img
+            src={user.profileImage || "https://i.pravatar.cc/400"}
+            className="w-full h-full object-cover rounded-l-3xl"
+          />
+        </div>
+
 
         {/* Right */}
         <div className="flex-1 p-8 relative">
