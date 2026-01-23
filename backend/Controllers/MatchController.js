@@ -2,7 +2,7 @@ import UserModel from "../Modules/User.js";
 import ChatModel from "../Modules/Chat.js";
 import { sendEmail } from "../utils/emailService.js";
 
-//swipe user
+/* ===================== SWIPE USER ===================== */
 const swipeUser = async (req, res) => {
   try {
     const { selectedUserId } = req.body;
@@ -53,9 +53,8 @@ ${user.name} has sent you a collaboration request on HackMate.
 Check your pending requests and respond before someone else teams up 😉
 
 – Team HackMate
-  `,
+      `,
     });
-
 
     res.json({
       success: true,
@@ -70,7 +69,7 @@ Check your pending requests and respond before someone else teams up 😉
   }
 };
 
-//accept request krna
+/* ===================== ACCEPT REQUEST ===================== */
 const acceptRequest = async (req, res) => {
   try {
     const { requesterId } = req.body;
@@ -95,11 +94,10 @@ const acceptRequest = async (req, res) => {
       });
     }
 
-    // 🧹 Cleanup pending / selected
+    // cleanup
     user.pendingRequests = user.pendingRequests.filter(
       (id) => id.toString() !== requesterId
     );
-
     requester.selectedUsers = requester.selectedUsers.filter(
       (id) => id.toString() !== userId
     );
@@ -107,12 +105,11 @@ const acceptRequest = async (req, res) => {
     if (!user.matches.includes(requesterId)) {
       user.matches.push(requesterId);
     }
-
     if (!requester.matches.includes(userId)) {
       requester.matches.push(userId);
     }
 
-    // 🔥 CREATE CHAT (only if not exists)
+    // create chat if not exists
     const existingChat = await ChatModel.findOne({
       participants: { $all: [userId, requesterId] },
     });
@@ -132,13 +129,10 @@ const acceptRequest = async (req, res) => {
 Congrats ${requester.name}!
 
 You and ${user.name} are now matched on HackMate 🎯
-
-You can start chatting immediately and build something awesome together.
-
-Don't wait — hackathons don't win themselves 😄
+Start chatting and build something awesome together.
 
 – Team HackMate
-  `,
+      `,
     });
 
     await sendEmail({
@@ -148,13 +142,11 @@ Don't wait — hackathons don't win themselves 😄
 Hey ${user.name},
 
 You’ve successfully matched with ${requester.name}.
-
 The chat is now open — break the ice and get to work!
 
 – Team HackMate
-  `,
+      `,
     });
-
 
     res.json({
       success: true,
@@ -169,7 +161,7 @@ The chat is now open — break the ice and get to work!
   }
 };
 
-// reject request krna
+/* ===================== REJECT REQUEST ===================== */
 const rejectRequest = async (req, res) => {
   try {
     const { requesterId } = req.body;
@@ -190,7 +182,6 @@ const rejectRequest = async (req, res) => {
     user.pendingRequests = user.pendingRequests.filter(
       (id) => id.toString() !== requesterId
     );
-
     requester.selectedUsers = requester.selectedUsers.filter(
       (id) => id.toString() !== userId
     );
@@ -210,11 +201,29 @@ const rejectRequest = async (req, res) => {
   }
 };
 
-//get matches wala
+/* ===================== GET MATCHES ===================== */
 const getMatches = async (req, res) => {
   const user = await UserModel.findById(req.user.id).populate(
     "matches",
-    "name year bio skills trackPreference profileImage age gender"
+    `
+      name
+      bio
+      age
+      gender
+      year
+      profileImage
+      skills
+      techStack
+      trackPreference
+      projects
+      mostPreferredRole
+      mostPreferredDomain
+      hackathonsParticipated
+      hackathonsWon
+      github
+      linkedin
+      instagram
+    `
   );
 
   res.json({
@@ -223,11 +232,29 @@ const getMatches = async (req, res) => {
   });
 };
 
-///selected users wala
+/* ===================== GET SELECTED USERS ===================== */
 const getSelectedUsers = async (req, res) => {
   const user = await UserModel.findById(req.user.id).populate(
     "selectedUsers",
-    "name year bio skills trackPreference profileImage age gender"
+    `
+      name
+      bio
+      age
+      gender
+      year
+      profileImage
+      skills
+      techStack
+      trackPreference
+      projects
+      mostPreferredRole
+      mostPreferredDomain
+      hackathonsParticipated
+      hackathonsWon
+      github
+      linkedin
+      instagram
+    `
   );
 
   res.json({
@@ -236,11 +263,29 @@ const getSelectedUsers = async (req, res) => {
   });
 };
 
-//pending requests wala
+/* ===================== GET PENDING REQUESTS ===================== */
 const getPendingRequests = async (req, res) => {
   const user = await UserModel.findById(req.user.id).populate(
     "pendingRequests",
-    "name year bio skills trackPreference profileImage age gender"
+    `
+      name
+      bio
+      age
+      gender
+      year
+      profileImage
+      skills
+      techStack
+      trackPreference
+      projects
+      mostPreferredRole
+      mostPreferredDomain
+      hackathonsParticipated
+      hackathonsWon
+      github
+      linkedin
+      instagram
+    `
   );
 
   res.json({
