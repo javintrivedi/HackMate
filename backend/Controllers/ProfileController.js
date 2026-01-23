@@ -1,4 +1,5 @@
 import UserModel from "../Modules/User.js";
+import cloudinary from "../utils/cloudinary.js";
 
 // Get logged-in user profile
 const getProfile = async (req, res) => {
@@ -22,7 +23,6 @@ const getProfile = async (req, res) => {
 // Update profile
 const updateProfile = async (req, res) => {
   try {
-    // 🔒 Auth safety
     if (!req.user || !req.user.id) {
       return res.status(401).json({
         success: false,
@@ -46,25 +46,18 @@ const updateProfile = async (req, res) => {
       "instagram",
     ];
 
-
     const updates = {};
 
-    // ⭐ IMPORTANT: only exclude UNDEFINED (not empty string / array)
     allowedFields.forEach((field) => {
       if (req.body[field] !== undefined) {
         updates[field] = req.body[field];
       }
     });
 
-    console.log("📥 STEPWISE PROFILE UPDATE:", updates);
-
     const user = await UserModel.findByIdAndUpdate(
       req.user.id,
-      { $set: updates },          // 🔥 merge, don't replace
-      {
-        new: true,
-        runValidators: true,      // 🔥 validates arrays + strings
-      }
+      { $set: updates },
+      { new: true, runValidators: true }
     ).select("-password");
 
     if (!user) {
@@ -82,7 +75,6 @@ const updateProfile = async (req, res) => {
   } catch (err) {
     console.error("❌ UPDATE PROFILE ERROR:", err);
 
-    // Handle duplicate unique keys cleanly
     if (err.code === 11000) {
       return res.status(400).json({
         success: false,
@@ -97,4 +89,44 @@ const updateProfile = async (req, res) => {
   }
 };
 
-export { getProfile, updateProfile };
+// ---------------- UPLOAD PROFILE IMAGE ----------------
+const uploadProfileImage = async (req, res) => {
+  try {
+    if (!req.file) {
+      return res
+        .status(400)
+        .json({ success: false, message: "No image uploaded" });
+    }
+
+    const uploadResult = await cloudinary.v2.uploader.upload(
+      `data:image/png;base64,${req.file.buffer.toString("base64")}`,
+      {
+        folder: "hackmate/profile-images",
+        transformation: [
+          { width: 400, height: 400, crop: "fill" },
+          { quality: "auto" },
+        ],
+      }
+    );
+
+    const user = await UserModel.findByIdAndUpdate(
+      req.user.id,
+      { profileImage: uploadResult.secure_url },
+      { new: true }
+    ).select("-password");
+
+    res.json({
+      success: true,
+      message: "Profile image uploaded successfully",
+      profileImage: user.profileImage,
+    });
+  } catch (err) {
+    console.error("❌ IMAGE UPLOAD ERROR:", err);
+    res.status(500).json({
+      success: false,
+      message: "Image upload failed",
+    });
+  }
+};
+
+export { getProfile, updateProfile, uploadProfileImage };

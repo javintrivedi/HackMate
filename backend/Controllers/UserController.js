@@ -24,7 +24,7 @@ const discoverUsers = async (req, res) => {
 
     const users = await UserModel.find({
       _id: { $nin: excludeIds },
-    }).select("name bio skills trackPreference year github linkedin");
+    }).select("name bio skills trackPreference year github linkedin profileImage age gender");
 
     res.status(200).json({
       success: true,
