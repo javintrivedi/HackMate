@@ -1,5 +1,6 @@
 import UserModel from "../Modules/User.js";
 import ChatModel from "../Modules/Chat.js";
+import { sendEmail } from "../utils/emailService.js";
 
 //swipe user
 const swipeUser = async (req, res) => {
@@ -40,6 +41,21 @@ const swipeUser = async (req, res) => {
     selectedUser.pendingRequests.push(userId);
 
     await Promise.all([user.save(), selectedUser.save()]);
+
+    await sendEmail({
+      to: selectedUser.email,
+      subject: "New collaboration request 🚀",
+      text: `
+Hey ${selectedUser.name},
+
+${user.name} has sent you a collaboration request on HackMate.
+
+Check your pending requests and respond before someone else teams up 😉
+
+– Team HackMate
+  `,
+    });
+
 
     res.json({
       success: true,
@@ -108,6 +124,37 @@ const acceptRequest = async (req, res) => {
     }
 
     await Promise.all([user.save(), requester.save()]);
+
+    await sendEmail({
+      to: requester.email,
+      subject: "It's a Match! 🎉",
+      text: `
+Congrats ${requester.name}!
+
+You and ${user.name} are now matched on HackMate 🎯
+
+You can start chatting immediately and build something awesome together.
+
+Don't wait — hackathons don't win themselves 😄
+
+– Team HackMate
+  `,
+    });
+
+    await sendEmail({
+      to: user.email,
+      subject: "Match confirmed 🚀",
+      text: `
+Hey ${user.name},
+
+You’ve successfully matched with ${requester.name}.
+
+The chat is now open — break the ice and get to work!
+
+– Team HackMate
+  `,
+    });
+
 
     res.json({
       success: true,
