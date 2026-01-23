@@ -1,11 +1,41 @@
-import { MessageCircle, User } from "lucide-react";
+import { MessageCircle } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { useEffect, useState } from "react";
+
+const API_URL =
+  import.meta.env.MODE === "development"
+    ? "http://localhost:3000"
+    : "https://hackmate-ybgv.onrender.com";
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const token = localStorage.getItem("token");
+
+  const [profileImage, setProfileImage] = useState(null);
+
+  // 🔥 Fetch profile image from API
+  useEffect(() => {
+    if (!token) return;
+
+    fetch(`${API_URL}/profile/me`, {
+      headers: {
+        Authorization: `Bearer ${token}`,
+      },
+    })
+      .then((res) => res.json())
+      .then((data) => {
+        if (data.success) {
+          setProfileImage(data.profile.profileImage);
+        }
+      })
+      .catch((err) => {
+        console.error("Navbar profile fetch error:", err);
+      });
+  }, []);
 
   return (
     <div className="fixed top-0 left-0 w-full h-20 px-10 flex items-center justify-between bg-[#D7EEFF] z-50">
+      
       {/* Logo */}
       <div
         onClick={() => navigate("/discover")}
@@ -33,7 +63,6 @@ const Navbar = () => {
 
       {/* Right */}
       <div className="flex items-center gap-6">
-        {/* 🔥 CHAT ICON → CHAT LIST */}
         <button
           onClick={() => navigate("/chat")}
           className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:scale-110 transition"
@@ -45,7 +74,11 @@ const Navbar = () => {
           onClick={() => navigate("/profile")}
           className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:scale-110 transition"
         >
-          <User />
+          <img
+            src={profileImage || "https://i.pravatar.cc/100"}
+            alt="Profile"
+            className="w-10 h-10 rounded-full object-cover"
+          />
         </button>
       </div>
     </div>

@@ -1,12 +1,16 @@
 const UserCard = ({ user, onClick, showActions, onAccept, onReject }) => {
   return (
     <div
-      onClick={() => onClick(user)}
+      onClick={() => onClick?.(user)}
       className="bg-white rounded-2xl p-4 shadow hover:shadow-xl hover:-translate-y-1 transition cursor-pointer"
     >
       {/* Image */}
-      <div className="w-full h-32 bg-gray-200 rounded-xl flex items-center justify-center mb-4">
-        <div className="w-20 h-20 bg-gray-300 rounded-full" />
+      <div className="w-full h-32 rounded-xl overflow-hidden mb-4 bg-gray-200">
+        <img
+          src={user.profileImage || "https://i.pravatar.cc/300"}
+          alt={user.name}
+          className="w-full h-full object-cover"
+        />
       </div>
 
       {/* Info */}
@@ -21,13 +25,13 @@ const UserCard = ({ user, onClick, showActions, onAccept, onReject }) => {
         >
           <button
             onClick={() => onAccept(user._id)}
-            className="flex-1 bg-green-500 text-white rounded py-1 hover:bg-green-600"
+            className="flex-1 bg-green-500 text-white rounded py-1 hover:bg-green-600 transition"
           >
             Accept
           </button>
           <button
             onClick={() => onReject(user._id)}
-            className="flex-1 bg-red-500 text-white rounded py-1 hover:bg-red-600"
+            className="flex-1 bg-red-500 text-white rounded py-1 hover:bg-red-600 transition"
           >
             Reject
           </button>

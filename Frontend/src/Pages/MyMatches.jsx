@@ -12,13 +12,11 @@ const API_URL =
 const MyMatches = () => {
   const navigate = useNavigate();
   const token = localStorage.getItem("token");
-  const myUser = JSON.parse(localStorage.getItem("user"));
 
   const [users, setUsers] = useState([]);
   const [chats, setChats] = useState([]);
   const [active, setActive] = useState(null);
 
-  // 🔹 Fetch matches
   const fetchMatches = async () => {
     const res = await fetch(`${API_URL}/match/matches`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -27,7 +25,6 @@ const MyMatches = () => {
     setUsers(data.matches || []);
   };
 
-  // 🔹 Fetch chats (for chatId mapping)
   const fetchChats = async () => {
     const res = await fetch(`${API_URL}/chat`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -41,7 +38,6 @@ const MyMatches = () => {
     fetchChats();
   }, []);
 
-  // 🔥 Find chatId for a matched user
   const openChatWithUser = (userId) => {
     const chat = chats.find((c) =>
       c.participants.some((p) => p._id === userId)
@@ -59,12 +55,11 @@ const MyMatches = () => {
     <div className="min-h-screen bg-[#D7EEFF]">
       <Navbar />
 
-      {/* Header */}
       <div className="max-w-7xl mx-auto pt-28 px-6">
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => navigate("/discover")}
-            className="w-10 h-10 bg-white rounded-full shadow flex items-center justify-center hover:scale-110 transition"
+            className="w-10 h-10 bg-white rounded-full shadow flex items-center justify-center hover:scale-110"
           >
             ←
           </button>
@@ -74,7 +69,6 @@ const MyMatches = () => {
           </div>
         </div>
 
-        {/* Grid */}
         {users.length === 0 ? (
           <p className="text-center text-gray-500 mt-20">
             No matches yet 🤝
@@ -85,7 +79,6 @@ const MyMatches = () => {
               <div key={u._id} className="relative">
                 <UserCard user={u} onClick={setActive} />
 
-                {/* 🔥 CHAT BUTTON */}
                 <button
                   onClick={() => openChatWithUser(u._id)}
                   className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm hover:bg-blue-700"
@@ -98,7 +91,6 @@ const MyMatches = () => {
         )}
       </div>
 
-      {/* Overlay */}
       {active && (
         <UserOverlay
           user={active}

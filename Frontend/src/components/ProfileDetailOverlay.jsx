@@ -46,9 +46,10 @@ const ProfileDetailOverlay = ({ user, onClose, onSelect }) => {
         {/* LEFT IMAGE */}
         <div className="w-[35%] bg-black">
           <img
-            src="https://i.pravatar.cc/700"
+            src={user.profileImage || "https://i.pravatar.cc/700"}
             className="w-full h-full object-cover"
           />
+
         </div>
 
         {/* RIGHT DETAILS */}

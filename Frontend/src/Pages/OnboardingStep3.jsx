@@ -7,11 +7,12 @@ const API_URL =
     ? "http://localhost:3000"
     : "https://hackmate-ybgv.onrender.com";
 
-export default function OnboardingStep3({ onBack, onFinish }) {
+export default function OnboardingStep3({ onBack }) {
   const [progress] = useState(50);
   const navigate = useNavigate();
 
-  const [profilePic, setProfilePic] = useState(null);
+  const [profileFile, setProfileFile] = useState(null); // 🔥 REAL FILE
+  const [profilePreview, setProfilePreview] = useState(null);
   const fileInputRef = useRef(null);
 
   const [formData, setFormData] = useState({
@@ -28,11 +29,13 @@ export default function OnboardingStep3({ onBack, onFinish }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
+  // 🔥 HANDLE IMAGE SELECT
   const handleProfileUpload = (e) => {
     const file = e.target.files[0];
-    if (file) {
-      setProfilePic(URL.createObjectURL(file));
-    }
+    if (!file) return;
+
+    setProfileFile(file); // 🔥 store actual file
+    setProfilePreview(URL.createObjectURL(file)); // preview only
   };
 
   const handleAddTag = (type, value) => {
@@ -51,45 +54,54 @@ export default function OnboardingStep3({ onBack, onFinish }) {
     }));
   };
 
+  // 🔥 FINAL SUBMIT
   const handleFinish = async () => {
-  setLoading(true);
-  setError("");
+    setLoading(true);
+    setError("");
 
-  try {
-    const payload = {
-      bio: formData.bio,
-      skills: formData.skills,
-      techStack: formData.techStack,
-      github: formData.github,
-      linkedin: formData.linkedin,
-      instagram: formData.instagram,
-    };
+    try {
+      // 1️⃣ UPDATE TEXT PROFILE
+      const res = await fetch(`${API_URL}/profile/update`, {
+        method: "PUT",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify(formData),
+      });
 
-    console.log("📤 STEP 3 PAYLOAD:", payload);
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.message || "Profile update failed");
+      }
 
-    const res = await fetch(`${API_URL}/profile/update`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${localStorage.getItem("token")}`,
-      },
-      body: JSON.stringify(payload),
-    });
+      // 2️⃣ UPLOAD PROFILE IMAGE (🔥 MAIN FIX)
+      if (profileFile) {
+        const formDataImg = new FormData();
+        formDataImg.append("image", profileFile);
 
-    const data = await res.json();
+        const imgRes = await fetch(`${API_URL}/profile/upload-image`, {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${localStorage.getItem("token")}`,
+          },
+          body: formDataImg,
+        });
 
-    if (!res.ok) {
-      throw new Error(data.message || "Failed to update profile");
+        const imgData = await imgRes.json();
+        if (!imgRes.ok) {
+          throw new Error(imgData.message || "Image upload failed");
+        }
+      }
+
+      navigate("/confirmDetails");
+    } catch (err) {
+      console.error("❌ Step 3 error:", err);
+      setError(err.message || "Server error");
+    } finally {
+      setLoading(false);
     }
-
-    navigate("/confirmDetails");
-  } catch (err) {
-    console.error("❌ Step 3 error:", err);
-    setError(err.message || "Server error");
-  } finally {
-    setLoading(false);
-  }
-};
+  };
 
   return (
     <div className="min-h-screen flex flex-col items-center justify-center bg-gradient-to-br from-blue-100 to-blue-200 font-sans">
@@ -117,22 +129,21 @@ export default function OnboardingStep3({ onBack, onFinish }) {
             Customize Your Profile
           </h1>
 
-          {error && (
-            <p className="text-red-600 text-center mb-4">{error}</p>
-          )}
+          {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
-          {/* Profile Pic */}
+          {/* 🔥 PROFILE IMAGE */}
           <div className="flex flex-col items-center mb-8">
             <div
               className="w-20 h-20 rounded-full border-4 border-blue-400 flex items-center justify-center overflow-hidden cursor-pointer"
               onClick={() => fileInputRef.current.click()}
             >
-              {profilePic ? (
-                <img src={profilePic} className="w-full h-full object-cover" />
+              {profilePreview ? (
+                <img src={profilePreview} className="w-full h-full object-cover" />
               ) : (
                 <Plus size={36} className="text-blue-600" />
               )}
             </div>
+
             <input
               type="file"
               accept="image/*"
