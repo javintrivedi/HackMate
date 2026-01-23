@@ -3,6 +3,11 @@ const { Schema } = mongoose;
 
 const UserSchema = new Schema(
   {
+    profileImage: {
+      type: String,
+      default: ""
+    },
+
     name: { type: String, required: true, trim: true },
 
     email: {

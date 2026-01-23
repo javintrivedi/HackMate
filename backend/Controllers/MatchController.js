@@ -1,11 +1,7 @@
 import UserModel from "../Modules/User.js";
 import ChatModel from "../Modules/Chat.js";
 
-/*
-|--------------------------------------------------------------------------
-| SWIPE USER (Right Swipe)
-|--------------------------------------------------------------------------
-*/
+//swipe user
 const swipeUser = async (req, res) => {
   try {
     const { selectedUserId } = req.body;
@@ -50,7 +46,7 @@ const swipeUser = async (req, res) => {
       message: "User selected successfully",
     });
   } catch (err) {
-    console.error(err);
+    console.error("❌ swipeUser error:", err);
     res.status(500).json({
       success: false,
       message: "Error in swiping user",
@@ -58,11 +54,7 @@ const swipeUser = async (req, res) => {
   }
 };
 
-/*
-|--------------------------------------------------------------------------
-| ACCEPT REQUEST (MATCH + CREATE CHAT)
-|--------------------------------------------------------------------------
-*/
+//accept request krna
 const acceptRequest = async (req, res) => {
   try {
     const { requesterId } = req.body;
@@ -87,7 +79,7 @@ const acceptRequest = async (req, res) => {
       });
     }
 
-    // 🧹 Cleanup
+    // 🧹 Cleanup pending / selected
     user.pendingRequests = user.pendingRequests.filter(
       (id) => id.toString() !== requesterId
     );
@@ -122,7 +114,7 @@ const acceptRequest = async (req, res) => {
       message: "Request accepted, matched & chat created",
     });
   } catch (err) {
-    console.error(err);
+    console.error("❌ acceptRequest error:", err);
     res.status(500).json({
       success: false,
       message: "Error accepting request",
@@ -130,9 +122,7 @@ const acceptRequest = async (req, res) => {
   }
 };
 
-/*
-|--------------------------------------------------------------------------|
-*/
+// reject request krna
 const rejectRequest = async (req, res) => {
   try {
     const { requesterId } = req.body;
@@ -142,6 +132,13 @@ const rejectRequest = async (req, res) => {
       UserModel.findById(userId),
       UserModel.findById(requesterId),
     ]);
+
+    if (!user || !requester) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
     user.pendingRequests = user.pendingRequests.filter(
       (id) => id.toString() !== requesterId
@@ -158,6 +155,7 @@ const rejectRequest = async (req, res) => {
       message: "Request rejected",
     });
   } catch (err) {
+    console.error("❌ rejectRequest error:", err);
     res.status(500).json({
       success: false,
       message: "Error rejecting request",
@@ -165,31 +163,43 @@ const rejectRequest = async (req, res) => {
   }
 };
 
+//get matches wala
 const getMatches = async (req, res) => {
   const user = await UserModel.findById(req.user.id).populate(
     "matches",
-    "name skills bio"
+    "name year bio skills trackPreference profileImage age gender"
   );
 
-  res.json({ success: true, matches: user.matches });
+  res.json({
+    success: true,
+    matches: user.matches || [],
+  });
 };
 
+///selected users wala
 const getSelectedUsers = async (req, res) => {
   const user = await UserModel.findById(req.user.id).populate(
     "selectedUsers",
-    "name skills bio"
+    "name year bio skills trackPreference profileImage age gender"
   );
 
-  res.json({ success: true, selectedUsers: user.selectedUsers });
+  res.json({
+    success: true,
+    selectedUsers: user.selectedUsers || [],
+  });
 };
 
+//pending requests wala
 const getPendingRequests = async (req, res) => {
   const user = await UserModel.findById(req.user.id).populate(
     "pendingRequests",
-    "name skills bio"
+    "name year bio skills trackPreference profileImage age gender"
   );
 
-  res.json({ success: true, pendingRequests: user.pendingRequests });
+  res.json({
+    success: true,
+    pendingRequests: user.pendingRequests || [],
+  });
 };
 
 export {
