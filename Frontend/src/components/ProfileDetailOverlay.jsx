@@ -16,6 +16,40 @@ const panelVariants = {
   },
 };
 
+const safeText = (v) =>
+  v !== undefined && v !== null && v !== "" ? v : "—";
+
+const safeArray = (arr) =>
+  Array.isArray(arr) && arr.length > 0 ? arr.join(", ") : "—";
+
+// 🔥 auto-add https
+const formatLink = (url) => {
+  if (!url || url === "—") return null;
+  return url.startsWith("http") ? url : `https://${url}`;
+};
+
+const ClickableLink = ({ label, value }) => {
+  const link = formatLink(value);
+
+  return (
+    <p>
+      {label}:{" "}
+      {link ? (
+        <a
+          href={link}
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-blue-700 underline break-all"
+        >
+          {value}
+        </a>
+      ) : (
+        "—"
+      )}
+    </p>
+  );
+};
+
 const ProfileDetailOverlay = ({ user, onClose, onSelect }) => {
   if (!user) return null;
 
@@ -33,7 +67,7 @@ const ProfileDetailOverlay = ({ user, onClose, onSelect }) => {
         animate="visible"
         className="w-[85%] h-[70%] bg-[#0B1C35] rounded-xl flex overflow-hidden relative shadow-2xl"
       >
-        {/* ❌ CLOSE */}
+        {/* CLOSE */}
         <motion.button
           whileHover={{ scale: 1.15, rotate: 8 }}
           whileTap={{ scale: 0.95 }}
@@ -49,28 +83,42 @@ const ProfileDetailOverlay = ({ user, onClose, onSelect }) => {
             src={user.profileImage || "https://i.pravatar.cc/700"}
             className="w-full h-full object-cover"
           />
-
         </div>
 
         {/* RIGHT DETAILS */}
-        <div className="flex-1 bg-[#A0A7B4] p-8 text-[#0B1C35] relative">
-          <h1 className="text-3xl font-semibold mb-6">{user.name}</h1>
+        <div className="flex-1 bg-[#A0A7B4] p-8 text-[#0B1C35] relative overflow-y-auto">
+          <h1 className="text-3xl font-semibold mb-6">
+            {safeText(user.name)}
+          </h1>
 
           <div className="space-y-2 text-lg">
-            <p>📍 Chennai, TN</p>
-            <p>🎂 Age: {user.age || "—"}</p>
-            <p>⚧ Gender: {user.gender || "—"}</p>
-            <p>🎓 {user.year}</p>
-            <p>🧠 Skills: {user.skills?.join(", ")}</p>
+            <p>🎂 Age: {safeText(user.age)}</p>
+            <p>⚧ Gender: {safeText(user.gender)}</p>
+            <p>🎓 Year: {safeText(user.year)}</p>
+            <p>🧠 Skills: {safeArray(user.skills)}</p>
+            <p>⚙️ Tech Stack: {safeArray(user.techStack)}</p>
+            <p>🛣 Track Preference: {safeArray(user.trackPreference)}</p>
+            <p>🎯 Preferred Role: {safeText(user.mostPreferredRole)}</p>
+            <p>📌 Preferred Domain: {safeText(user.mostPreferredDomain)}</p>
+            <p>🏁 Hackathons Participated: {safeText(user.hackathonsParticipated)}</p>
+            <p>🏆 Hackathons Won: {safeText(user.hackathonsWon)}</p>
           </div>
 
+          {/* BIO */}
           <div className="mt-6">
-            <p className="text-md text-gray-800">
-              {user.bio || "No bio provided"}
+            <p className="text-md text-gray-800 whitespace-pre-wrap break-all leading-relaxed">
+              {safeText(user.bio)}
             </p>
           </div>
 
-          {/* ⭐ STAR (RIGHT SWIPE ACTION) */}
+          {/* 🔗 CLICKABLE SOCIALS */}
+          <div className="mt-6 space-y-1 text-lg">
+            <ClickableLink label="GitHub" value={user.github} />
+            <ClickableLink label="LinkedIn" value={user.linkedin} />
+            <ClickableLink label="Instagram" value={user.instagram} />
+          </div>
+
+          {/* STAR ACTION */}
           <motion.button
             whileHover={{
               scale: 1.25,
