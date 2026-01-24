@@ -11,13 +11,14 @@ import ProfileRouter from "./Routes/ProfileRouter.js";
 import MatchRouter from "./Routes/MatchRouter.js";
 import UserRouter from "./Routes/UserRouter.js";
 import ChatRouter from "./Routes/ChatRouter.js";
+import TagRouter from "./Routes/TagRouter.js";
 
-import { initSocket } from "./socket/socket.js"; // 🔥 ADD THIS
+import { initSocket } from "./socket/socket.js";
 
 dotenv.config();
 
 const app = express();
-const server = http.createServer(app); // 🔥 IMPORTANT
+const server = http.createServer(app); // IMPORTANT
 
 const PORT = process.env.PORT || 3000;
 
@@ -50,11 +51,14 @@ app.use("/match", MatchRouter);
 app.use("/users", UserRouter);
 app.use("/chat", ChatRouter);
 
-// 🔥 INITIALIZE SOCKET.IO
+// yeh woh filters ke liye hai (techstack and skills ka)
+app.use("/tags", TagRouter);
+
+// INITIALIZE SOCKET.IO
 initSocket(server);
 
-// 🔥 LISTEN USING HTTP SERVER (NOT app.listen)
+// LISTEN USING HTTP SERVER (NOT app.listen)
 server.listen(PORT, () => {
-  console.log(`🚀 Server + Socket running on port ${PORT}`);
-  console.log("Mazza aara hai 😎");
+  console.log(`Server + Socket running on port ${PORT}`);
+  console.log("Sb chal rha hai crazyyy");
 });
