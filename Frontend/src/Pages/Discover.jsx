@@ -1,4 +1,4 @@
-import { ChevronLeft, ChevronRight, X, Check } from "lucide-react";
+import { X, Check } from "lucide-react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
@@ -111,20 +111,12 @@ const Discover = () => {
   const user = users[index];
 
   return (
-    <div className="min-h-screen bg-[#D7EEFF] pt-28 overflow-hidden">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 overflow-hidden">
       <Navbar />
+      <div className="ml-72">
 
-      {/* CARD AREA */}
-      <div className="relative flex justify-center items-center mt-14">
-        {/* LEFT ARROW */}
-        <motion.button
-          whileHover={{ scale: 1.15 }}
-          onClick={swipeLeft}
-          className="absolute left-24 w-14 h-14 bg-white rounded-full shadow"
-        >
-          <ChevronLeft size={30} />
-        </motion.button>
-
+        {/* CARD AREA */}
+        <div className="relative flex justify-center items-center py-20">
         {/* CARD */}
         <AnimatePresence>
           {user && (
@@ -135,62 +127,97 @@ const Discover = () => {
               animate={direction || "center"}
               exit={direction}
               onClick={() => setActiveUser(user)}
-              className="w-[360px] h-[470px] bg-white rounded-2xl shadow-2xl overflow-hidden cursor-pointer"
+              className="w-[480px] h-[680px] bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden cursor-pointer relative border border-white/20"
             >
-              <img
-                src={user.profileImage || "https://i.pravatar.cc/600"}
-                className="w-full h-[60%] object-cover"
-              />
+              {/* Image Section */}
+              <div className="relative h-[60%] overflow-hidden">
+                <img
+                  src={user.profileImage || "https://i.pravatar.cc/600"}
+                  className="w-full h-full object-cover"
+                />
+                <div className="absolute bottom-0 left-0 right-0 h-40 bg-gradient-to-t from-black/80 via-black/40 to-transparent" />
+                
+                {/* Name on Image */}
+                <div className="absolute bottom-6 left-6 right-6">
+                  <h3 className="text-4xl font-bold text-white drop-shadow-lg">{user.name}</h3>
+                  <p className="text-white/90 text-lg font-medium mt-1">{user.year}</p>
+                </div>
+              </div>
 
+              {/* Bio Section */}
+              <div className="p-6 h-[40%] flex flex-col">
+                <div className="flex-1 overflow-y-auto">
+                  <p className="text-md font-bold text-gray-500 mb-2 uppercase tracking-wide">About</p>
+                  {user.bio ? (
+                    <p className="text-gray-700 text-md leading-relaxed">{user.bio}</p>
+                  ) : (
+                    <p className="text-gray-400 text-sm italic">No bio available</p>
+                  )}
+                  
+                  {/* Additional Info */}
+                  {(user.skills?.length > 0 || user.techStack?.length > 0) && (
+                    <div className="mt-4">
+                      <p className="text-xs font-bold text-gray-500 mb-2 uppercase tracking-wide">Skills</p>
+                      <div className="flex flex-wrap gap-2">
+                        {(user.skills || user.techStack)?.slice(0, 5).map((skill, i) => (
+                          <span key={i} className="px-3 py-1 bg-gradient-to-r from-blue-100 to-indigo-100 text-blue-700 rounded-full text-xs font-semibold">
+                            {skill}
+                          </span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
+                </div>
 
-              <div className="p-5">
-                <h3 className="text-2xl font-bold">{user.name}</h3>
-                <p className="text-gray-600">{user.year}</p>
+                {/* Action Buttons */}
+                <div className="flex gap-4 mt-6">
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      swipeLeft();
+                    }}
+                    className=" flex-5 flex items-center justify-center gap-4 px-1 py-3 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-full shadow-lg text-white font-bold text-lg transition-all duration-200 cursor-pointer"
+                  >
+                    <X size={28} strokeWidth={2.5} />
+                    
+                  </motion.button>
+
+                  <motion.button
+                    whileHover={{ scale: 1.05 }}
+                    whileTap={{ scale: 0.95 }}
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      swipeRight();
+                    }}
+                    className="flex-5 flex items-center justify-center gap-4 px-1 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-full shadow-lg text-white font-bold text-lg transition-all duration-200 cursor-pointer"
+                  >
+                    <Check size={28} strokeWidth={2.5} />
+                  </motion.button>
+                </div>
               </div>
 
               {overlay === "reject" && (
-                <div className="absolute inset-0 bg-red-500/20 flex items-center justify-center">
-                  <X size={100} className="text-red-600" />
+                <div className="absolute inset-0 bg-red-500/30 backdrop-blur-sm flex items-center justify-center">
+                  <div className="bg-white/90 rounded-full p-8 shadow-2xl">
+                    <X size={120} className="text-red-600" strokeWidth={3} />
+                  </div>
                 </div>
               )}
 
               {overlay === "accept" && (
-                <div className="absolute inset-0 bg-green-500/20 flex items-center justify-center">
-                  <Check size={100} className="text-green-600" />
+                <div className="absolute inset-0 bg-green-500/30 backdrop-blur-sm flex items-center justify-center">
+                  <div className="bg-white/90 rounded-full p-8 shadow-2xl">
+                    <Check size={120} className="text-green-600" strokeWidth={3} />
+                  </div>
                 </div>
               )}
             </motion.div>
           )}
         </AnimatePresence>
-
-        {/* RIGHT ARROW */}
-        <motion.button
-          whileHover={{ scale: 1.15 }}
-          onClick={swipeRight}
-          className="absolute right-24 w-14 h-14 bg-white rounded-full shadow"
-        >
-          <ChevronRight size={30} />
-        </motion.button>
       </div>
 
-      {/* BOTTOM BUTTONS */}
-      <div className="mt-10 flex justify-center gap-10">
-        <BottomPill
-          label="My Selections"
-          count={counts.selected}
-          onClick={() => navigate("/selections")}
-        />
-        <BottomPill
-          label="My Matches"
-          count={counts.matches}
-          onClick={() => navigate("/matches")}
-        />
-        <BottomPill
-          label="Pending requests"
-          count={counts.pending}
-          onClick={() => navigate("/pending")}
-        />
-      </div>
 
       {/* PROFILE OVERLAY */}
       {activeUser && (
@@ -203,6 +230,7 @@ const Discover = () => {
           }}
         />
       )}
+      </div>
     </div>
   );
 };

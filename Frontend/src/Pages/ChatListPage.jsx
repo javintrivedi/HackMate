@@ -24,16 +24,16 @@ const ChatListPage = () => {
   }, []);
 
   return (
-    <div className="min-h-screen bg-[#D7EEFF]">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto pt-28 px-6">
-        <div className="bg-[#3F61A8] rounded-xl overflow-hidden flex h-[75vh] shadow-xl">
+      <div className="ml-72 max-w-7xl mx-auto py-10 px-6">
+        <div className="bg-white/70 backdrop-blur-xl rounded-3xl overflow-hidden flex h-[75vh] shadow-2xl border border-white/20">
 
           {/* LEFT SIDEBAR */}
-          <div className="w-[30%] bg-[#BFE6FF]">
-            <div className="p-4 font-semibold text-lg text-[#102A52]">
-              💬 CHATS
+          <div className="w-[30%] bg-gradient-to-b from-blue-100 to-indigo-100">
+            <div className="p-5 font-bold text-xl text-gray-800 border-b border-white/50">
+              💬 Chats
             </div>
 
             {chats.length === 0 ? (
@@ -50,12 +50,14 @@ const ChatListPage = () => {
                   <div
                     key={chat._id}
                     onClick={() => navigate(`/chat/${chat._id}`)}
-                    className="flex items-center gap-3 px-4 py-3 cursor-pointer hover:bg-[#A7D8FF] transition"
+                    className="flex items-center gap-3 px-4 py-4 cursor-pointer hover:bg-white/60 transition-all duration-200 border-b border-white/30"
                   >
-                    <div className="w-10 h-10 rounded bg-blue-400" />
+                    <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold">
+                      {otherUser?.name?.charAt(0)}
+                    </div>
                     <div>
-                      <p className="font-semibold">{otherUser?.name}</p>
-                      <p className="text-xs text-gray-600">
+                      <p className="font-semibold text-gray-800">{otherUser?.name}</p>
+                      <p className="text-xs text-gray-500">
                         Click to open chat
                       </p>
                     </div>
@@ -66,9 +68,9 @@ const ChatListPage = () => {
           </div>
 
           {/* RIGHT EMPTY PANEL */}
-          <div className="flex-1 bg-[#EAF6FF] flex items-center justify-center">
-            <p className="text-gray-500 text-lg">
-              Select a chat to start messaging
+          <div className="flex-1 bg-gradient-to-b from-blue-50 to-white flex items-center justify-center">
+            <p className="text-gray-500 text-lg font-medium">
+              👋 Select a chat to start messaging
             </p>
           </div>
         </div>

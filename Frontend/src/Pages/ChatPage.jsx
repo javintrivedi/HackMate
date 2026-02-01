@@ -51,7 +51,6 @@ const ChatPage = () => {
     return () => {
       socket.off("new-message");
       socket.off("chat-locked");
-      socket.disconnect();
     };
   }, [chatId]);
 
@@ -81,30 +80,30 @@ const ChatPage = () => {
   );
 
   return (
-    <div className="min-h-screen bg-[#D7EEFF]">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto pt-28 px-6">
-        <div className="bg-[#3F61A8] rounded-xl overflow-hidden flex h-[75vh] shadow-xl">
+      <div className="ml-72 max-w-7xl mx-auto py-10 px-6">
+        <div className="bg-white/70 backdrop-blur-xl rounded-3xl overflow-hidden flex h-[75vh] shadow-2xl border border-white/20">
 
           {/* LEFT SIDEBAR PLACEHOLDER */}
-          <div className="w-[30%] bg-[#BFE6FF]" />
+          <div className="w-[30%] bg-gradient-to-b from-blue-100 to-indigo-100" />
 
           {/* CHAT AREA */}
-          <div className="flex-1 bg-[#EAF6FF] flex flex-col">
+          <div className="flex-1 bg-gradient-to-b from-blue-50 to-white flex flex-col">
 
             {/* HEADER */}
-            <div className="h-16 bg-[#3F61A8] text-white flex items-center px-6 font-semibold">
+            <div className="h-16 bg-gradient-to-r from-blue-600 to-indigo-600 text-white flex items-center px-6 font-semibold shadow-lg">
               {otherUser?.name}
             </div>
 
             {/* MESSAGE COUNT */}
-            <p className="text-xs text-center text-gray-500 mt-2">
+            <p className="text-xs text-center text-gray-500 mt-3 mb-2 font-medium">
               {messages.length}/{chat.messageLimit} messages used
             </p>
 
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
               {messages.map((msg, i) => {
                 const isMe =
                   msg.sender === myUser?.id ||
@@ -113,13 +112,17 @@ const ChatPage = () => {
                 return (
                   <div
                     key={i}
-                    className={`max-w-[60%] px-4 py-2 rounded-2xl text-sm ${
-                      isMe
-                        ? "ml-auto bg-green-300"
-                        : "bg-blue-300"
-                    }`}
+                    className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
                   >
-                    {msg.text}
+                    <div
+                      className={`max-w-[70%] px-5 py-3 rounded-2xl text-sm shadow-sm ${
+                        isMe
+                          ? "bg-gradient-to-r from-green-400 to-emerald-400 text-white"
+                          : "bg-white text-gray-800"
+                      }`}
+                    >
+                      {msg.text}
+                    </div>
                   </div>
                 );
               })}
@@ -127,7 +130,7 @@ const ChatPage = () => {
             </div>
 
             {/* INPUT */}
-            <div className="p-4 bg-white flex gap-4">
+            <div className="p-4 bg-white/80 backdrop-blur-sm flex gap-4 border-t border-gray-200">
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
@@ -143,21 +146,21 @@ const ChatPage = () => {
                     ? "Chat locked (limit reached)"
                     : "Type your message..."
                 }
-                className="flex-1 border rounded-xl px-4 py-2 outline-none"
+                className="flex-1 border-2 border-gray-200 rounded-xl px-5 py-3 outline-none focus:border-blue-400 transition-all"
               />
 
               <button
                 onClick={sendMessage}
                 disabled={locked}
-                className="bg-green-500 text-white px-6 rounded-xl disabled:bg-gray-400"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 rounded-xl font-semibold disabled:from-gray-400 disabled:to-gray-400 transition-all duration-200 shadow-lg"
               >
                 Send
               </button>
             </div>
 
             {locked && (
-              <p className="text-red-500 text-sm text-center pb-2">
-                Chat locked. Message limit reached.
+              <p className="text-red-500 text-sm text-center pb-3 font-medium">
+                ⚠️ Chat locked. Message limit reached.
               </p>
             )}
           </div>
