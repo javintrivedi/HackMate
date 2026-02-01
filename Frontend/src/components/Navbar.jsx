@@ -1,5 +1,5 @@
-import { MessageCircle } from "lucide-react";
-import { useNavigate } from "react-router-dom";
+import { MessageCircle, LogOut, Users, Heart, Clock } from "lucide-react";
+import { useNavigate, useLocation } from "react-router-dom";
 import { useEffect, useState } from "react";
 
 const API_URL =
@@ -9,6 +9,7 @@ const API_URL =
 
 const Navbar = () => {
   const navigate = useNavigate();
+  const location = useLocation();
   const token = localStorage.getItem("token");
 
   const [profileImage, setProfileImage] = useState(null);
@@ -33,52 +34,95 @@ const Navbar = () => {
       });
   }, []);
 
+  const handleLogout = () => {
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    navigate("/login");
+  };
+
+  const navItems = [
+    { label:"Discover", path:"/discover", icon: Users},
+    {label: "My Selections", path: "/selections", icon: Heart },
+    { label: "My Matches", path: "/matches", icon: Users },
+    { label: "Pending Requests", path: "/pending", icon: Clock },
+  ];
+
   return (
-    <div className="fixed top-0 left-0 w-full h-20 px-10 flex items-center justify-between bg-[#D7EEFF] z-50">
+    <div className="fixed left-0 top-0 h-screen w-72 bg-white/70 backdrop-blur-xl z-50 border-r border-white/20 shadow-2xl flex flex-col">
       
       {/* Logo */}
       <div
         onClick={() => navigate("/discover")}
-        className="text-xl font-bold text-[#102A52] cursor-pointer"
+        className="px-6 py-8 cursor-pointer"
       >
-        HackMate
+        <h1 className="text-3xl font-bold bg-gradient-to-r from-blue-600 to-indigo-600 bg-clip-text text-transparent hover:scale-105 transition-transform">
+          HackMate
+        </h1>
       </div>
 
-      {/* Center */}
-      <div className="flex gap-8">
-        {[
-          { label: "Home", path: "/discover" },
-          { label: "Preferences", path: "/preferences" },
-          { label: "About us", path: "/about" },
-        ].map((btn) => (
-          <button
-            key={btn.label}
-            onClick={() => navigate(btn.path)}
-            className="px-8 py-2 rounded-full bg-[#EAF4FF] shadow hover:scale-105 transition"
-          >
-            {btn.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Right */}
-      <div className="flex items-center gap-6">
+      {/* Top Section - Chat & Profile */}
+      <div className="px-4 space-y-3 pb-6 border-b border-gray-200/50">
         <button
           onClick={() => navigate("/chat")}
-          className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:scale-110 transition"
+          className={`w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+            location.pathname === "/chat" || location.pathname.startsWith("/chat/")
+              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+              : "bg-white/50 hover:bg-white/80 text-gray-700"
+          }`}
         >
-          <MessageCircle />
+          <MessageCircle size={22} />
+          <span className="font-semibold">Messages</span>
         </button>
 
         <button
           onClick={() => navigate("/profile")}
-          className="w-10 h-10 rounded-full bg-white shadow flex items-center justify-center hover:scale-110 transition"
+          className={`w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+            location.pathname === "/profile"
+              ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+              : "bg-white/50 hover:bg-white/80 text-gray-700"
+          }`}
         >
           <img
             src={profileImage || "https://i.pravatar.cc/100"}
             alt="Profile"
-            className="w-10 h-10 rounded-full object-cover"
+            className="w-7 h-7 rounded-full object-cover border-2 border-white"
           />
+          <span className="font-semibold">My Profile</span>
+        </button>
+      </div>
+
+      {/* Middle Section - Navigation Items */}
+      <div className="flex-1 px-4 py-6 space-y-2">
+        <p className="text-xs font-bold text-gray-500 px-5 mb-3">NAVIGATION</p>
+        
+        {navItems.map((item) => {
+          const Icon = item.icon;
+          const isActive = location.pathname === item.path;
+          return (
+            <button
+              key={item.path}
+              onClick={() => navigate(item.path)}
+              className={`w-full flex items-center gap-4 px-5 py-3 rounded-xl transition-all duration-200 cursor-pointer ${
+                isActive
+                  ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                  : "bg-white/30 hover:bg-white/60 text-gray-700"
+              }`}
+            >
+              <Icon size={20} />
+              <span className="font-medium">{item.label}</span>
+            </button>
+          );
+        })}
+      </div>
+
+      {/* Bottom Section - Logout */}
+      <div className="px-4 py-6 border-t border-gray-200/50">
+        <button
+          onClick={handleLogout}
+          className="w-full flex items-center gap-4 px-5 py-3 rounded-xl bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 text-white shadow-lg transition-all duration-200 hover:scale-105 font-semibold"
+        >
+          <LogOut size={20} />
+          <span>Logout</span>
         </button>
       </div>
     </div>

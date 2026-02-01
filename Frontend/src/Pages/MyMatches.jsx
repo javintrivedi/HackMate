@@ -52,19 +52,19 @@ const MyMatches = () => {
   };
 
   return (
-    <div className="min-h-screen bg-[#D7EEFF]">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100">
       <Navbar />
 
-      <div className="max-w-7xl mx-auto pt-28 px-6">
+      <div className="ml-72 max-w-7xl mx-auto py-10 px-6">
         <div className="flex items-center gap-4 mb-8">
           <button
             onClick={() => navigate("/discover")}
-            className="w-10 h-10 bg-white rounded-full shadow flex items-center justify-center hover:scale-110"
+            className="w-12 h-12 bg-white/70 backdrop-blur-sm rounded-full shadow-lg flex items-center justify-center hover:scale-110 transition-all duration-200 border border-white/20"
           >
             ←
           </button>
 
-          <div className="bg-white px-6 py-2 rounded-full shadow font-medium">
+          <div className="bg-white/70 backdrop-blur-sm px-8 py-3 rounded-full shadow-lg font-semibold text-gray-800 border border-white/20">
             My Matches ({users.length})
           </div>
         </div>
@@ -81,9 +81,9 @@ const MyMatches = () => {
 
                 <button
                   onClick={() => openChatWithUser(u._id)}
-                  className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-blue-600 text-white px-4 py-1 rounded-full text-sm hover:bg-blue-700"
+                  className="absolute bottom-3 left-1/2 -translate-x-1/2 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white px-5 py-2 rounded-full text-sm font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
                 >
-                  Chat
+                  💬 Chat
                 </button>
               </div>
             ))}

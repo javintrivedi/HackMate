@@ -10,7 +10,7 @@ const WelcomeScreen = () => {
   useEffect(() => {
     const timer = setTimeout(() => {
       setShow(false); // trigger fade out
-      setTimeout(() => navigate("/login"),700); // navigate after fade
+      setTimeout(() => navigate("/discover"),700); // navigate after fade
     }, 5000); // 4 sec wait
     return () => clearTimeout(timer);
   }, [navigate]);

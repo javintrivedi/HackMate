@@ -99,27 +99,30 @@ const Profile = () => {
 
   if (!profile) {
     return (
-      <div className="min-h-screen bg-[#D7EEFF] flex items-center justify-center">
-        Loading...
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 flex items-center justify-center">
+        <div className="text-lg text-gray-600">Loading...</div>
       </div>
     );
   }
 
   return (
-    <div className="min-h-screen bg-[#D7EEFF]">
+    <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100">
       <Navbar />
 
-      <div className="max-w-6xl mx-auto pt-28 px-6">
-        <div className="bg-white rounded-[32px] shadow-xl p-10 flex gap-12">
+      <div className="ml-72 max-w-6xl mx-auto py-10 px-6">
+        <div className="bg-white/70 backdrop-blur-xl rounded-3xl shadow-2xl p-10 flex gap-12 border border-white/20">
 
           {/* ---------------- LEFT ---------------- */}
           <div className="w-1/3 flex flex-col items-center">
-            <img
-              src={profile.profileImage || "https://i.pravatar.cc/300"}
-              className="w-40 h-40 rounded-full object-cover mb-3"
-            />
+            <div className="relative">
+              <img
+                src={profile.profileImage || "https://i.pravatar.cc/300"}
+                className="w-44 h-44 rounded-full object-cover border-4 border-white shadow-lg"
+              />
+              <div className="absolute inset-0 rounded-full ring-4 ring-blue-400/30" />
+            </div>
 
-            <label className="text-blue-600 cursor-pointer text-sm">
+            <label className="text-blue-600 cursor-pointer text-sm mt-4 hover:text-blue-700 font-medium transition">
               {uploading ? "Uploading..." : "Change photo"}
               <input
                 type="file"
@@ -130,13 +133,13 @@ const Profile = () => {
               />
             </label>
 
-            <h2 className="text-3xl font-extrabold mt-6 leading-tight">
+            <h2 className="text-3xl font-extrabold mt-6 leading-tight text-gray-800">
               {profile.name}
             </h2>
 
             <p className="text-gray-500 text-sm mt-1">{profile.email}</p>
 
-            <div className="mt-8 w-full text-sm text-gray-700 space-y-3">
+            <div className="mt-8 w-full text-sm text-gray-700 space-y-3 bg-white/50 rounded-2xl p-5 backdrop-blur-sm">
               <InfoRow label="Age" value={profile.age} />
               <InfoRow label="Phone" value={profile.phoneNumber} />
               <InfoRow label="Year" value={profile.year} />
@@ -164,9 +167,9 @@ const Profile = () => {
 
                 <button
                   onClick={() => setEdit(true)}
-                  className="mt-8 px-8 py-3 bg-blue-600 text-white rounded-xl"
+                  className="mt-8 px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 hover:from-blue-700 hover:to-indigo-700 text-white rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105"
                 >
-                  Edit ✏️
+                  Edit Profile ✏️
                 </button>
               </>
             ) : (
@@ -212,11 +215,11 @@ const Profile = () => {
 
                 <div className="col-span-2 flex gap-4 mt-4">
                   <button onClick={handleSave}
-                    className="bg-green-600 text-white px-8 py-3 rounded-xl">
-                    Save
+                    className="bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 text-white px-8 py-3 rounded-xl font-semibold shadow-lg transition-all duration-200 transform hover:scale-105">
+                    Save Changes
                   </button>
                   <button onClick={() => setEdit(false)}
-                    className="bg-gray-300 px-8 py-3 rounded-xl">
+                    className="bg-gray-200 hover:bg-gray-300 px-8 py-3 rounded-xl font-semibold transition-all duration-200">
                     Cancel
                   </button>
                 </div>
