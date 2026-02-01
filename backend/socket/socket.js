@@ -7,10 +7,10 @@ export const initSocket = (httpServer) => {
     cors: {
       origin: [
         "http://localhost:5173",
-        "https://hack-mate-ten.vercel.app"
+        "https://hack-mate-ten.vercel.app",
       ],
-      credentials: true
-    }
+      credentials: true,
+    },
   });
 
   // 🔐 SOCKET AUTH (JWT)
@@ -20,7 +20,7 @@ export const initSocket = (httpServer) => {
       if (!token) throw new Error("Token missing");
 
       const decoded = jwt.verify(token, process.env.JWT_SECRET);
-      socket.userId = decoded.id;
+      socket.userId = decoded.id; // ✅ SINGLE SOURCE OF TRUTH
       next();
     } catch (err) {
       console.error("❌ Socket auth failed");
@@ -31,28 +31,30 @@ export const initSocket = (httpServer) => {
   io.on("connection", (socket) => {
     console.log("🟢 Socket connected:", socket.userId);
 
-    // Join specific chat room
+    // 🔹 Join specific chat room
     socket.on("join-chat", (chatId) => {
+      if (!chatId) return;
       socket.join(chatId);
       console.log(`👥 User ${socket.userId} joined chat ${chatId}`);
     });
 
-    // Send message
+    // 🔹 Send message
     socket.on("send-message", async ({ chatId, text }) => {
       try {
-        if (!text || !chatId) return;
+        if (!chatId || !text?.trim()) return;
 
         const chat = await ChatModel.findById(chatId);
-
         if (!chat || chat.isLocked) {
           socket.emit("chat-locked");
           return;
         }
 
         // 🔒 Ensure sender is part of chat
-        if (!chat.participants.map(id => id.toString()).includes(socket.userId)) {
-          return;
-        }
+        const isParticipant = chat.participants
+          .map((id) => id.toString())
+          .includes(socket.userId);
+
+        if (!isParticipant) return;
 
         // 🚫 Message limit check
         if (chat.messages.length >= chat.messageLimit) {
@@ -62,22 +64,21 @@ export const initSocket = (httpServer) => {
           return;
         }
 
-        // ✅ Save message
+        // ✅ Save message in DB (sender as ObjectId)
         const message = {
           sender: socket.userId,
-          text
+          text: text.trim(),
         };
 
         chat.messages.push(message);
         await chat.save();
 
-        // 📡 Broadcast message
+        // 📡 Broadcast message (CONSISTENT FORMAT)
         io.to(chatId).emit("new-message", {
-          sender: socket.userId,
-          text,
-          createdAt: new Date()
+          sender: { _id: socket.userId }, // 🔥 ALWAYS OBJECT
+          text: message.text,
+          createdAt: new Date(),
         });
-
       } catch (err) {
         console.error("❌ Socket message error:", err);
       }

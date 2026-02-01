@@ -2,15 +2,29 @@ import { useEffect, useRef, useState } from "react";
 import { useParams } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { socket } from "../socket";
+import { jwtDecode } from "jwt-decode";
 
 const API_URL =
   import.meta.env.MODE === "development"
     ? "http://localhost:3000"
     : "https://hackmate-ybgv.onrender.com";
 
+// ⏱️ time formatter
+const formatTime = (date) => {
+  if (!date) return "";
+  return new Date(date).toLocaleTimeString([], {
+    hour: "2-digit",
+    minute: "2-digit",
+  });
+};
+
 const ChatPage = () => {
   const { chatId } = useParams();
   const token = localStorage.getItem("token");
+
+  // 🔐 Decode userId from JWT
+  const decoded = jwtDecode(token);
+  const myUserId = decoded.id;
 
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -19,7 +33,7 @@ const ChatPage = () => {
 
   const messagesEndRef = useRef(null);
 
-  // 🔹 Fetch chat once
+  // 🔹 Fetch chat
   useEffect(() => {
     fetch(`${API_URL}/chat/id/${chatId}`, {
       headers: { Authorization: `Bearer ${token}` },
@@ -51,17 +65,17 @@ const ChatPage = () => {
     return () => {
       socket.off("new-message");
       socket.off("chat-locked");
+      socket.disconnect();
     };
   }, [chatId]);
 
-  // 🔹 Auto-scroll
+  // 🔹 Auto scroll
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   const sendMessage = () => {
     if (!text.trim() || locked) return;
-
     socket.emit("send-message", { chatId, text });
     setText("");
   };
@@ -74,9 +88,8 @@ const ChatPage = () => {
     );
   }
 
-  const myUser = JSON.parse(localStorage.getItem("user"));
   const otherUser = chat.participants.find(
-    (p) => p._id !== myUser?.id
+    (p) => p._id !== myUserId
   );
 
   return (
@@ -97,32 +110,63 @@ const ChatPage = () => {
               {otherUser?.name}
             </div>
 
-            {/* MESSAGE COUNT */}
             <p className="text-xs text-center text-gray-500 mt-3 mb-2 font-medium">
               {messages.length}/{chat.messageLimit} messages used
             </p>
 
             {/* MESSAGES */}
-            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-3">
+            <div className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
               {messages.map((msg, i) => {
-                const isMe =
-                  msg.sender === myUser?.id ||
-                  msg.sender?._id === myUser?.id;
+                const senderId =
+                  typeof msg.sender === "string"
+                    ? msg.sender
+                    : msg.sender?._id;
+
+                const isMe = senderId === myUserId;
 
                 return (
                   <div
                     key={i}
-                    className={`flex ${isMe ? 'justify-end' : 'justify-start'}`}
+                    className={`flex items-end gap-2 ${
+                      isMe ? "justify-end" : "justify-start"
+                    }`}
                   >
-                    <div
-                      className={`max-w-[70%] px-5 py-3 rounded-2xl text-sm shadow-sm ${
-                        isMe
-                          ? "bg-gradient-to-r from-green-400 to-emerald-400 text-white"
-                          : "bg-white text-gray-800"
-                      }`}
-                    >
-                      {msg.text}
+                    {/* OTHER USER AVATAR */}
+                    {!isMe && (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 text-white flex items-center justify-center text-sm font-semibold">
+                        {otherUser?.name?.charAt(0)}
+                      </div>
+                    )}
+
+                    {/* MESSAGE + TIME */}
+                    <div className="flex flex-col max-w-[70%]">
+                      <div
+                        className={`px-5 py-3 rounded-2xl text-sm shadow-sm ${
+                          isMe
+                            ? "bg-gradient-to-r from-green-400 to-emerald-400 text-white rounded-br-sm"
+                            : "bg-white text-gray-800 rounded-bl-sm"
+                        }`}
+                      >
+                        {msg.text}
+                      </div>
+
+                      <span
+                        className={`text-[10px] mt-1 ${
+                          isMe
+                            ? "text-right text-gray-300"
+                            : "text-left text-gray-400"
+                        }`}
+                      >
+                        {formatTime(msg.createdAt)}
+                      </span>
                     </div>
+
+                    {/* MY AVATAR */}
+                    {isMe && (
+                      <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 text-white flex items-center justify-center text-xs font-semibold">
+                        ME
+                      </div>
+                    )}
                   </div>
                 );
               })}
@@ -134,25 +178,20 @@ const ChatPage = () => {
               <input
                 value={text}
                 onChange={(e) => setText(e.target.value)}
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    e.preventDefault();
-                    sendMessage();
-                  }
-                }}
+                onKeyDown={(e) => e.key === "Enter" && sendMessage()}
                 disabled={locked}
                 placeholder={
                   locked
                     ? "Chat locked (limit reached)"
                     : "Type your message..."
                 }
-                className="flex-1 border-2 border-gray-200 rounded-xl px-5 py-3 outline-none focus:border-blue-400 transition-all"
+                className="flex-1 border-2 border-gray-200 rounded-xl px-5 py-3 outline-none focus:border-blue-400"
               />
 
               <button
                 onClick={sendMessage}
                 disabled={locked}
-                className="bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 text-white px-8 rounded-xl font-semibold disabled:from-gray-400 disabled:to-gray-400 transition-all duration-200 shadow-lg"
+                className="bg-gradient-to-r from-green-500 to-emerald-500 text-white px-8 rounded-xl font-semibold disabled:opacity-50"
               >
                 Send
               </button>
