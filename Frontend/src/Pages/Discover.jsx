@@ -117,27 +117,28 @@ const Discover = () => {
   };
 
   // RIGHT SWIPE (SELECT)
-  const swipeRight = async () => {
+  const swipeRight = () => {
     const user = users[index];
     if (!user) return;
 
     setDirection("right");
     setOverlay("accept");
 
-    await fetch(`${API_URL}/match/swipe`, {
+    // Fire API call in background without blocking animation
+    fetch(`${API_URL}/match/swipe`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
         Authorization: `Bearer ${token}`,
       },
       body: JSON.stringify({ selectedUserId: user._id }),
-    });
+    }).then(() => refreshCounts());
 
+    // Proceed with animation immediately
     setTimeout(() => {
       setIndex((i) => i + 1);
       setDirection(null);
       setOverlay(null);
-      refreshCounts();
     }, 500);
   };
 
