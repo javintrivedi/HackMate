@@ -12,9 +12,42 @@ const API_URL =
     : "https://hackmate-ybgv.onrender.com";
 
 const swipeVariants = {
-  center: { x: 0, opacity: 1, rotate: 0 },
-  left: { x: -300, opacity: 0, rotate: -8, transition: { duration: 0.4 } },
-  right: { x: 300, opacity: 0, rotate: 8, transition: { duration: 0.4 } },
+  center: { 
+    x: 0, 
+    y: 0,
+    opacity: 1, 
+    rotate: 0,
+    scale: 1,
+    zIndex: 10,
+    transition: { 
+      duration: 0.5,
+      ease: [0.32, 0.72, 0, 1] // Custom easing for smooth motion
+    }
+  },
+  left: { 
+    x: -400, 
+    y: -30,
+    opacity: 0, 
+    rotate: -15,
+    scale: 0.9,
+    zIndex: 0,
+    transition: { 
+      duration: 0.5,
+      ease: [0.32, 0.72, 0, 1]
+    } 
+  },
+  right: { 
+    x: 400, 
+    y: -30,
+    opacity: 0, 
+    rotate: 15,
+    scale: 0.9,
+    zIndex: 0,
+    transition: { 
+      duration: 0.5,
+      ease: [0.32, 0.72, 0, 1]
+    } 
+  },
 };
 
 // 🔥 SAFE SHUFFLE (NO MUTATION)
@@ -80,7 +113,7 @@ const Discover = () => {
       setIndex((i) => i + 1);
       setDirection(null);
       setOverlay(null);
-    }, 400);
+    }, 500);
   };
 
   // RIGHT SWIPE (SELECT)
@@ -105,10 +138,11 @@ const Discover = () => {
       setDirection(null);
       setOverlay(null);
       refreshCounts();
-    }, 400);
+    }, 500);
   };
 
   const user = users[index];
+  const nextUser = users[index + 1];
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 overflow-hidden">
@@ -117,6 +151,58 @@ const Discover = () => {
 
         {/* CARD AREA */}
         <div className="relative flex justify-center items-center py-20">
+        {/* NEXT CARD PREVIEWS (LEFT + RIGHT) */}
+        {nextUser && (
+          <>
+            <motion.div
+              key={`${nextUser._id}-left`}
+              initial={{ opacity: 0, x: -40, scale: 0.94 }}
+              animate={{
+                opacity: 0.65,
+                x: direction === "left" ? -28 : 0,
+                scale: direction === "left" ? 0.99 : 0.965,
+              }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="absolute left-[120px] -translate-x-10 w-[420px] h-[620px] bg-white/60 backdrop-blur-3xl rounded-3xl shadow-xl border border-white/20 overflow-hidden z-0 pointer-events-none"
+            >
+              <div className="relative h-[60%] overflow-hidden">
+                <img
+                  src={nextUser.profileImage || "https://i.pravatar.cc/600"}
+                  className="w-full h-full object-cover blur-[6px]"
+                />
+                <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+              </div>
+              <div className="p-5 h-[40%]">
+                <p className="text-white/80 text-sm font-semibold">{nextUser.name}</p>
+                <p className="text-white/60 text-xs">{nextUser.year}</p>
+              </div>
+            </motion.div>
+
+            <motion.div
+              key={`${nextUser._id}-right`}
+              initial={{ opacity: 0, x: 40, scale: 0.94 }}
+              animate={{
+                opacity: 0.7,
+                x: direction === "right" ? 28 : 0,
+                scale: direction === "right" ? 0.99 : 0.965,
+              }}
+              transition={{ duration: 0.4, ease: "easeOut" }}
+              className="absolute right-[120px] translate-x-10 w-[420px] h-[620px] bg-white/60 backdrop-blur-3xl rounded-3xl shadow-xl border border-white/20 overflow-hidden z-0 pointer-events-none"
+            >
+              <div className="relative h-[60%] overflow-hidden">
+                <img
+                  src={nextUser.profileImage || "https://i.pravatar.cc/600"}
+                  className="w-full h-full object-cover blur-[6px]"
+                />
+                <div className="absolute bottom-0 left-0 right-0 h-36 bg-gradient-to-t from-black/60 via-black/30 to-transparent" />
+              </div>
+              <div className="p-5 h-[40%]">
+                <p className="text-white/80 text-sm font-semibold">{nextUser.name}</p>
+                <p className="text-white/60 text-xs">{nextUser.year}</p>
+              </div>
+            </motion.div>
+          </>
+        )}
         {/* CARD */}
         <AnimatePresence>
           {user && (
@@ -127,7 +213,7 @@ const Discover = () => {
               animate={direction || "center"}
               exit={direction}
               onClick={() => setActiveUser(user)}
-              className="w-[480px] h-[680px] bg-white/90 backdrop-blur-lg rounded-3xl shadow-2xl overflow-hidden cursor-pointer relative border border-white/20"
+              className="w-[480px] h-[680px] bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden cursor-pointer relative border border-white/20 z-10"
             >
               {/* Image Section */}
               <div className="relative h-[60%] overflow-hidden">
