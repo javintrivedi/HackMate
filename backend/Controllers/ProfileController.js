@@ -1,5 +1,6 @@
 import UserModel from "../Modules/User.js";
 import cloudinary from "../utils/cloudinary.js";
+import streamifier from "streamifier";
 
 // Get logged-in user profile
 const getProfile = async (req, res) => {
@@ -93,36 +94,60 @@ const updateProfile = async (req, res) => {
 const uploadProfileImage = async (req, res) => {
   try {
     if (!req.file) {
-      return res
-        .status(400)
-        .json({ success: false, message: "No image uploaded" });
+      return res.status(400).json({
+        success: false,
+        message: "No image uploaded",
+      });
     }
 
-    const uploadResult = await cloudinary.v2.uploader.upload(
-      `data:image/png;base64,${req.file.buffer.toString("base64")}`,
-      {
-        folder: "hackmate/profile-images",
-        transformation: [
-          { width: 400, height: 400, crop: "fill" },
-          { quality: "auto" },
-        ],
-      }
-    );
+    const user = await UserModel.findById(req.user.id);
+    if (!user) {
+      return res.status(404).json({
+        success: false,
+        message: "User not found",
+      });
+    }
 
-    const user = await UserModel.findByIdAndUpdate(
-      req.user.id,
-      { profileImage: uploadResult.secure_url },
-      { new: true }
-    ).select("-password");
+    // 🔥 DELETE OLD IMAGE (if exists)
+    if (user.profileImagePublicId) {
+      await cloudinary.v2.uploader.destroy(user.profileImagePublicId);
+    }
 
-    res.json({
+    // 🔥 STREAM UPLOAD (FAST & SAFE)
+    const uploadFromBuffer = () =>
+      new Promise((resolve, reject) => {
+        const stream = cloudinary.v2.uploader.upload_stream(
+          {
+            folder: "hackmate/profile-images",
+            transformation: [
+              { width: 400, height: 400, crop: "fill" },
+              { quality: "auto" },
+            ],
+          },
+          (error, result) => {
+            if (result) resolve(result);
+            else reject(error);
+          }
+        );
+
+        streamifier.createReadStream(req.file.buffer).pipe(stream);
+      });
+
+    const result = await uploadFromBuffer();
+
+    user.profileImage = result.secure_url;
+    user.profileImagePublicId = result.public_id;
+
+    await user.save();
+
+    return res.json({
       success: true,
       message: "Profile image uploaded successfully",
-      profileImage: user.profileImage,
+      profileImage: result.secure_url,
     });
   } catch (err) {
     console.error("❌ IMAGE UPLOAD ERROR:", err);
-    res.status(500).json({
+    return res.status(500).json({
       success: false,
       message: "Image upload failed",
     });

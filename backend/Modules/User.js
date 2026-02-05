@@ -8,6 +8,11 @@ const UserSchema = new Schema(
       default: ""
     },
 
+    profileImagePublicId: {
+      type: String,
+      default: ""
+    },
+
     name: { type: String, required: true, trim: true },
 
     email: {
