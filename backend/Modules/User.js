@@ -77,5 +77,9 @@ const UserSchema = new Schema(
   { timestamps: true }
 );
 
+UserSchema.index({ selectedUsers: 1 });
+UserSchema.index({ pendingRequests: 1 });
+UserSchema.index({ matches: 1 });
+
 const UserModel = mongoose.model("User", UserSchema);
 export default UserModel;
