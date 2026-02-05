@@ -1,11 +1,7 @@
 import React, { useState } from "react";
 import { ArrowRight, ArrowLeft } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : "https://hackmate-ybgv.onrender.com";
+import { apiFetch } from "../utils/api";
 
 export default function OnboardingStep2({ onNext, onBack }) {
   const [progress, setProgress] = useState(30);
@@ -71,12 +67,9 @@ export default function OnboardingStep2({ onNext, onBack }) {
         raNumber: formData.regNo,
       };
 
-      const res = await fetch(`${API_URL}/profile/update`, {
+      const res = await apiFetch("/profile/update", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(payload),
       });
 

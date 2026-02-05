@@ -1,10 +1,6 @@
 import { useEffect, useState } from "react";
 import Navbar from "../components/Navbar";
-
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : "https://hackmate-ybgv.onrender.com";
+import { apiFetch } from "../utils/api";
 
 /* -------------------- UTILS -------------------- */
 const normalizeArray = (arr = []) =>
@@ -20,19 +16,17 @@ const Profile = () => {
   const [edit, setEdit] = useState(false);
   const [uploading, setUploading] = useState(false);
 
-  const token = localStorage.getItem("token");
-
+  /* ---------------- FETCH PROFILE ---------------- */
   useEffect(() => {
-    fetch(`${API_URL}/profile/me`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
+    apiFetch("/profile/me")
       .then((r) => r.json())
       .then((d) => {
         if (d.success) {
           setProfile(d.profile);
           setForm(d.profile);
         }
-      });
+      })
+      .catch((err) => console.error("Profile fetch error:", err.message));
   }, []);
 
   /* ---------------- IMAGE UPLOAD ---------------- */
@@ -45,9 +39,9 @@ const Profile = () => {
 
     try {
       setUploading(true);
-      const res = await fetch(`${API_URL}/profile/upload-image`, {
+
+      const res = await apiFetch("/profile/upload-image", {
         method: "POST",
-        headers: { Authorization: `Bearer ${token}` },
         body: fd,
       });
 
@@ -79,21 +73,23 @@ const Profile = () => {
       instagram: form.instagram,
     };
 
-    const res = await fetch(`${API_URL}/profile/update`, {
-      method: "PUT",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${token}`,
-      },
-      body: JSON.stringify(payload),
-    });
+    try {
+      const res = await apiFetch("/profile/update", {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload),
+      });
 
-    const data = await res.json();
-    if (data.success) {
-      setProfile(data.profile);
-      setEdit(false);
-    } else {
+      const data = await res.json();
+      if (data.success) {
+        setProfile(data.profile);
+        setEdit(false);
+      } else {
+        alert("Save failed");
+      }
+    } catch (err) {
       alert("Save failed");
+      console.error("Profile save error:", err.message);
     }
   };
 
@@ -174,11 +170,8 @@ const Profile = () => {
               </>
             ) : (
               <div className="grid grid-cols-2 gap-6">
-                <Textarea
-                  label="About me"
-                  value={form.bio}
-                  onChange={(v) => setForm((f) => ({ ...f, bio: v }))}
-                />
+                <Textarea label="About me" value={form.bio}
+                  onChange={(v) => setForm((f) => ({ ...f, bio: v }))} />
 
                 <TagInput label="Skills" values={form.skills || []}
                   setValues={(v) => setForm((f) => ({ ...f, skills: v }))} />
@@ -242,7 +235,6 @@ const InfoRow = ({ label, value, small }) => (
   </div>
 );
 
-/* 🔥 CLICKABLE DISPLAY */
 const Display = ({ label, value }) => {
   const isLink =
     value &&

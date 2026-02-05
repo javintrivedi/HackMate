@@ -1,26 +1,36 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : "https://hackmate-ybgv.onrender.com";
+import { apiFetch } from "../utils/api";
 
 const ChatListPage = () => {
   const [chats, setChats] = useState([]);
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
+
   const myUser = JSON.parse(localStorage.getItem("user"));
 
   useEffect(() => {
-    fetch(`${API_URL}/chat`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) setChats(data.chats);
-      });
+    let mounted = true;
+
+    const fetchChats = async () => {
+      try {
+        const res = await apiFetch("/chat");
+        const data = await res.json();
+
+        if (mounted && data.success) {
+          setChats(data.chats);
+        }
+      } catch (err) {
+        // 🔐 Token expiry handled centrally in apiFetch
+        console.error("Chat list fetch error:", err.message);
+      }
+    };
+
+    fetchChats();
+
+    return () => {
+      mounted = false;
+    };
   }, []);
 
   return (
@@ -29,7 +39,7 @@ const ChatListPage = () => {
 
       <div className="ml-72 max-w-7xl mx-auto py-10 px-6">
         <div className="bg-white/70 backdrop-blur-xl rounded-3xl overflow-hidden flex h-[75vh] shadow-2xl border border-white/20">
-
+          
           {/* LEFT SIDEBAR */}
           <div className="w-[30%] bg-gradient-to-b from-blue-100 to-indigo-100">
             <div className="p-5 font-bold text-xl text-gray-800 border-b border-white/50">
@@ -55,8 +65,11 @@ const ChatListPage = () => {
                     <div className="w-12 h-12 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 flex items-center justify-center text-white font-bold">
                       {otherUser?.name?.charAt(0)}
                     </div>
+
                     <div>
-                      <p className="font-semibold text-gray-800">{otherUser?.name}</p>
+                      <p className="font-semibold text-gray-800">
+                        {otherUser?.name}
+                      </p>
                       <p className="text-xs text-gray-500">
                         Click to open chat
                       </p>

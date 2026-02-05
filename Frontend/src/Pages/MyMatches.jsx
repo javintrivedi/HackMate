@@ -3,34 +3,33 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import UserCard from "../components/UserCard";
 import UserOverlay from "../components/UserOverlay";
-
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : "https://hackmate-ybgv.onrender.com";
+import { apiFetch } from "../utils/api";
 
 const MyMatches = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   const [users, setUsers] = useState([]);
   const [chats, setChats] = useState([]);
   const [active, setActive] = useState(null);
 
   const fetchMatches = async () => {
-    const res = await fetch(`${API_URL}/match/matches`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setUsers(data.matches || []);
+    try {
+      const res = await apiFetch("/match/matches");
+      const data = await res.json();
+      setUsers(data.matches || []);
+    } catch (err) {
+      console.error("Fetch matches error:", err.message);
+    }
   };
 
   const fetchChats = async () => {
-    const res = await fetch(`${API_URL}/chat`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setChats(data.chats || []);
+    try {
+      const res = await apiFetch("/chat");
+      const data = await res.json();
+      setChats(data.chats || []);
+    } catch (err) {
+      console.error("Fetch chats error:", err.message);
+    }
   };
 
   useEffect(() => {

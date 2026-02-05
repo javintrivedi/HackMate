@@ -3,25 +3,22 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import UserCard from "../components/UserCard";
 import UserOverlay from "../components/UserOverlay";
-
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : "https://hackmate-ybgv.onrender.com";
+import { apiFetch } from "../utils/api";
 
 const MySelections = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   const [users, setUsers] = useState([]);
   const [active, setActive] = useState(null);
 
   const fetchData = async () => {
-    const res = await fetch(`${API_URL}/match/selected`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setUsers(data.selectedUsers || []);
+    try {
+      const res = await apiFetch("/match/selected");
+      const data = await res.json();
+      setUsers(data.selectedUsers || []);
+    } catch (err) {
+      console.error("Fetch selections error:", err.message);
+    }
   };
 
   useEffect(() => {

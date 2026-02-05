@@ -1,17 +1,13 @@
 import React, { useState, useRef } from "react";
 import { ArrowLeft, Plus, X, ArrowRight } from "lucide-react";
 import { useNavigate } from "react-router-dom";
-
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : "https://hackmate-ybgv.onrender.com";
+import { apiFetch } from "../utils/api";
 
 export default function OnboardingStep3({ onBack }) {
   const [progress] = useState(50);
   const navigate = useNavigate();
 
-  const [profileFile, setProfileFile] = useState(null); // 🔥 REAL FILE
+  const [profileFile, setProfileFile] = useState(null);
   const [profilePreview, setProfilePreview] = useState(null);
   const fileInputRef = useRef(null);
 
@@ -29,13 +25,13 @@ export default function OnboardingStep3({ onBack }) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
 
-  // 🔥 HANDLE IMAGE SELECT
+  /* ---------------- IMAGE SELECT ---------------- */
   const handleProfileUpload = (e) => {
     const file = e.target.files[0];
     if (!file) return;
 
-    setProfileFile(file); // 🔥 store actual file
-    setProfilePreview(URL.createObjectURL(file)); // preview only
+    setProfileFile(file);
+    setProfilePreview(URL.createObjectURL(file));
   };
 
   const handleAddTag = (type, value) => {
@@ -54,19 +50,16 @@ export default function OnboardingStep3({ onBack }) {
     }));
   };
 
-  // 🔥 FINAL SUBMIT
+  /* ---------------- FINAL SUBMIT ---------------- */
   const handleFinish = async () => {
     setLoading(true);
     setError("");
 
     try {
       // 1️⃣ UPDATE TEXT PROFILE
-      const res = await fetch(`${API_URL}/profile/update`, {
+      const res = await apiFetch("/profile/update", {
         method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify(formData),
       });
 
@@ -75,16 +68,13 @@ export default function OnboardingStep3({ onBack }) {
         throw new Error(data.message || "Profile update failed");
       }
 
-      // 2️⃣ UPLOAD PROFILE IMAGE (🔥 MAIN FIX)
+      // 2️⃣ UPLOAD PROFILE IMAGE
       if (profileFile) {
         const formDataImg = new FormData();
         formDataImg.append("image", profileFile);
 
-        const imgRes = await fetch(`${API_URL}/profile/upload-image`, {
+        const imgRes = await apiFetch("/profile/upload-image", {
           method: "POST",
-          headers: {
-            Authorization: `Bearer ${localStorage.getItem("token")}`,
-          },
           body: formDataImg,
         });
 
@@ -131,7 +121,7 @@ export default function OnboardingStep3({ onBack }) {
 
           {error && <p className="text-red-600 text-center mb-4">{error}</p>}
 
-          {/* 🔥 PROFILE IMAGE */}
+          {/* PROFILE IMAGE */}
           <div className="flex flex-col items-center mb-8">
             <div
               className="w-20 h-20 rounded-full border-4 border-blue-400 flex items-center justify-center overflow-hidden cursor-pointer"
@@ -168,7 +158,10 @@ export default function OnboardingStep3({ onBack }) {
             <label className="font-semibold mb-2 block">Skills</label>
             <div className="flex flex-wrap gap-2 border rounded-xl p-3">
               {formData.skills.map((skill, i) => (
-                <span key={i} className="bg-blue-500 text-white px-3 py-1 rounded-full flex gap-2">
+                <span
+                  key={i}
+                  className="bg-blue-500 text-white px-3 py-1 rounded-full flex gap-2"
+                >
                   {skill}
                   <X size={14} onClick={() => handleRemoveTag("skills", i)} />
                 </span>
@@ -192,7 +185,10 @@ export default function OnboardingStep3({ onBack }) {
             <label className="font-semibold mb-2 block">Tech Stack</label>
             <div className="flex flex-wrap gap-2 border rounded-xl p-3">
               {formData.techStack.map((tech, i) => (
-                <span key={i} className="bg-blue-500 text-white px-3 py-1 rounded-full flex gap-2">
+                <span
+                  key={i}
+                  className="bg-blue-500 text-white px-3 py-1 rounded-full flex gap-2"
+                >
                   {tech}
                   <X size={14} onClick={() => handleRemoveTag("techStack", i)} />
                 </span>
@@ -213,12 +209,24 @@ export default function OnboardingStep3({ onBack }) {
 
           {/* Social Links */}
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            <input placeholder="GitHub" value={formData.github}
-              onChange={(e) => setFormData(p => ({ ...p, github: e.target.value }))} className="p-3 rounded-xl border" />
-            <input placeholder="LinkedIn" value={formData.linkedin}
-              onChange={(e) => setFormData(p => ({ ...p, linkedin: e.target.value }))} className="p-3 rounded-xl border" />
-            <input placeholder="Instagram" value={formData.instagram}
-              onChange={(e) => setFormData(p => ({ ...p, instagram: e.target.value }))} className="p-3 rounded-xl border md:col-span-2" />
+            <input
+              placeholder="GitHub"
+              value={formData.github}
+              onChange={(e) => setFormData(p => ({ ...p, github: e.target.value }))}
+              className="p-3 rounded-xl border"
+            />
+            <input
+              placeholder="LinkedIn"
+              value={formData.linkedin}
+              onChange={(e) => setFormData(p => ({ ...p, linkedin: e.target.value }))}
+              className="p-3 rounded-xl border"
+            />
+            <input
+              placeholder="Instagram"
+              value={formData.instagram}
+              onChange={(e) => setFormData(p => ({ ...p, instagram: e.target.value }))}
+              className="p-3 rounded-xl border md:col-span-2"
+            />
           </div>
 
           {/* Buttons */}
