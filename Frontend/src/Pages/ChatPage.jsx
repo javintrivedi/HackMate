@@ -1,13 +1,9 @@
 import { useEffect, useRef, useState } from "react";
-import { useParams } from "react-router-dom";
+import { useParams, useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import { socket } from "../socket";
 import { jwtDecode } from "jwt-decode";
-
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : "https://hackmate-ybgv.onrender.com";
+import { apiFetch } from "../utils/api";
 
 // ⏱️ time formatter
 const formatTime = (date) => {
@@ -20,11 +16,20 @@ const formatTime = (date) => {
 
 const ChatPage = () => {
   const { chatId } = useParams();
+  const navigate = useNavigate();
+
   const token = localStorage.getItem("token");
 
-  // 🔐 Decode userId from JWT
-  const decoded = jwtDecode(token);
-  const myUserId = decoded.id;
+  // 🔐 SAFE JWT DECODE
+  let myUserId = null;
+  try {
+    if (!token) throw new Error("Token missing");
+    const decoded = jwtDecode(token);
+    myUserId = decoded.id;
+  } catch {
+    navigate("/login");
+    return null;
+  }
 
   const [chat, setChat] = useState(null);
   const [messages, setMessages] = useState([]);
@@ -33,23 +38,36 @@ const ChatPage = () => {
 
   const messagesEndRef = useRef(null);
 
-  // 🔹 Fetch chat
+  /* ---------------- FETCH CHAT ---------------- */
   useEffect(() => {
-    fetch(`${API_URL}/chat/id/${chatId}`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => res.json())
-      .then((data) => {
-        if (data.success) {
+    let mounted = true;
+
+    const fetchChat = async () => {
+      try {
+        const res = await apiFetch(`/chat/id/${chatId}`);
+        const data = await res.json();
+
+        if (mounted && data.success) {
           setChat(data.chat);
-          setMessages(data.chat.messages);
+          setMessages(data.chat.messages || []);
           setLocked(data.chat.isLocked);
         }
-      });
+      } catch (err) {
+        console.error("Chat fetch error:", err.message);
+      }
+    };
+
+    fetchChat();
+
+    return () => {
+      mounted = false;
+    };
   }, [chatId]);
 
-  // 🔹 Socket lifecycle
+  /* ---------------- SOCKET LIFECYCLE ---------------- */
   useEffect(() => {
+    if (!token) return;
+
     socket.auth = { token };
     socket.connect();
     socket.emit("join-chat", chatId);
@@ -67,9 +85,9 @@ const ChatPage = () => {
       socket.off("chat-locked");
       socket.disconnect();
     };
-  }, [chatId]);
+  }, [chatId, token]);
 
-  // 🔹 Auto scroll
+  /* ---------------- AUTO SCROLL ---------------- */
   useEffect(() => {
     messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
@@ -131,14 +149,12 @@ const ChatPage = () => {
                       isMe ? "justify-end" : "justify-start"
                     }`}
                   >
-                    {/* OTHER USER AVATAR */}
                     {!isMe && (
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-blue-400 to-indigo-500 text-white flex items-center justify-center text-sm font-semibold">
                         {otherUser?.name?.charAt(0)}
                       </div>
                     )}
 
-                    {/* MESSAGE + TIME */}
                     <div className="flex flex-col max-w-[70%]">
                       <div
                         className={`px-5 py-3 rounded-2xl text-sm shadow-sm ${
@@ -161,7 +177,6 @@ const ChatPage = () => {
                       </span>
                     </div>
 
-                    {/* MY AVATAR */}
                     {isMe && (
                       <div className="w-8 h-8 rounded-full bg-gradient-to-br from-green-400 to-emerald-500 text-white flex items-center justify-center text-xs font-semibold">
                         ME

@@ -3,25 +3,22 @@ import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
 import UserCard from "../components/UserCard";
 import UserOverlay from "../components/UserOverlay";
-
-const API_URL =
-  import.meta.env.MODE === "development"
-    ? "http://localhost:3000"
-    : "https://hackmate-ybgv.onrender.com";
+import { apiFetch } from "../utils/api";
 
 const PendingRequests = () => {
   const navigate = useNavigate();
-  const token = localStorage.getItem("token");
 
   const [users, setUsers] = useState([]);
   const [active, setActive] = useState(null);
 
   const fetchData = async () => {
-    const res = await fetch(`${API_URL}/match/pending`, {
-      headers: { Authorization: `Bearer ${token}` },
-    });
-    const data = await res.json();
-    setUsers(data.pendingRequests || []);
+    try {
+      const res = await apiFetch("/match/pending");
+      const data = await res.json();
+      setUsers(data.pendingRequests || []);
+    } catch (err) {
+      console.error("Fetch pending requests error:", err.message);
+    }
   };
 
   useEffect(() => {
@@ -54,23 +51,15 @@ const PendingRequests = () => {
               onClick={setActive}
               showActions
               onAccept={async (id) => {
-                await fetch(`${API_URL}/match/accept`, {
+                await apiFetch("/match/accept", {
                   method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                  },
                   body: JSON.stringify({ requesterId: id }),
                 });
                 fetchData();
               }}
               onReject={async (id) => {
-                await fetch(`${API_URL}/match/reject`, {
+                await apiFetch("/match/reject", {
                   method: "POST",
-                  headers: {
-                    "Content-Type": "application/json",
-                    Authorization: `Bearer ${token}`,
-                  },
                   body: JSON.stringify({ requesterId: id }),
                 });
                 fetchData();
