@@ -61,6 +61,7 @@ const Discover = () => {
   const [direction, setDirection] = useState(null);
   const [overlay, setOverlay] = useState(null);
   const [activeUser, setActiveUser] = useState(null);
+  const [page, setPage] = useState(0);
 
   const [counts, setCounts] = useState({
     selected: 0,
@@ -70,19 +71,29 @@ const Discover = () => {
 
   // 🔹 Fetch discover users + counts
   useEffect(() => {
-    apiFetch("/users/discover")
+    apiFetch(`/users/discover?page=${page}`)
       .then((res) => res.json())
       .then((data) => {
-        if (data.success && data.users?.length) {
-          setUsers(shuffleArray(data.users));
-          setIndex(0);
+        if (!data.success) return;
+
+        setUsers(shuffleArray(data.users));
+        setIndex(0);
+
+        // 🔁 backend reset signal
+        if (data.reset) {
+          setPage(0);
         }
       })
       .catch((err) => console.error("Discover fetch error:", err.message));
 
-
     refreshCounts();
-  }, []);
+  }, [page]);
+
+  useEffect(() => {
+    if (index >= users.length && users.length > 0) {
+      setPage((p) => p + 1);
+    }
+  }, [index]);
 
   const refreshCounts = async () => {
     try {
