@@ -7,12 +7,12 @@ const overlayVariants = {
 };
 
 const panelVariants = {
-  hidden: { opacity: 0, scale: 0.92, y: 40 },
+  hidden: { opacity: 0, scale: 0.95, y: 40 },
   visible: {
     opacity: 1,
     scale: 1,
     y: 0,
-    transition: { duration: 0.4, ease: "easeOut" },
+    transition: { duration: 0.35, ease: "easeOut" },
   },
 };
 
@@ -22,7 +22,6 @@ const safeText = (v) =>
 const safeArray = (arr) =>
   Array.isArray(arr) && arr.length > 0 ? arr.join(", ") : "—";
 
-// 🔥 auto-add https
 const formatLink = (url) => {
   if (!url || url === "—") return null;
   return url.startsWith("http") ? url : `https://${url}`;
@@ -30,16 +29,15 @@ const formatLink = (url) => {
 
 const ClickableLink = ({ label, value }) => {
   const link = formatLink(value);
-
   return (
-    <p>
-      {label}:{" "}
+    <p className="break-all">
+      <b>{label}:</b>{" "}
       {link ? (
         <a
           href={link}
           target="_blank"
           rel="noopener noreferrer"
-          className="text-blue-700 underline break-all"
+          className="text-blue-700 underline"
         >
           {value}
         </a>
@@ -59,39 +57,42 @@ const ProfileDetailOverlay = ({ user, onClose, onSelect }) => {
       initial="hidden"
       animate="visible"
       exit="hidden"
-      className="fixed inset-0 bg-black/40 flex items-center justify-center z-50"
+      className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center px-3"
     >
       <motion.div
         variants={panelVariants}
-        initial="hidden"
-        animate="visible"
-        className="w-[85%] h-[70%] bg-[#0B1C35] rounded-xl flex overflow-hidden relative shadow-2xl"
+        className="
+          w-full max-w-5xl
+          h-[92vh] md:h-[75vh]
+          bg-[#0B1C35]
+          rounded-2xl overflow-hidden
+          flex flex-col md:flex-row
+          relative shadow-2xl
+        "
       >
         {/* CLOSE */}
-        <motion.button
-          whileHover={{ scale: 1.15, rotate: 8 }}
-          whileTap={{ scale: 0.95 }}
+        <button
           onClick={onClose}
-          className="absolute top-4 right-4 text-white z-10 hover:text-red-400"
+          className="absolute top-3 right-3 z-20 text-white hover:text-red-400"
         >
-          <X size={28} />
-        </motion.button>
+          <X size={26} />
+        </button>
 
-        {/* LEFT IMAGE */}
-        <div className="w-[35%] bg-black">
+        {/* IMAGE */}
+        <div className="w-full md:w-[35%] h-[35%] md:h-full bg-black">
           <img
             src={user.profileImage || "https://i.pravatar.cc/700"}
             className="w-full h-full object-cover"
           />
         </div>
 
-        {/* RIGHT DETAILS */}
-        <div className="flex-1 bg-[#A0A7B4] p-8 text-[#0B1C35] relative overflow-y-auto">
-          <h1 className="text-3xl font-semibold mb-6">
+        {/* DETAILS */}
+        <div className="flex-1 bg-[#A0A7B4] p-5 md:p-8 text-[#0B1C35] overflow-y-auto relative">
+          <h1 className="text-2xl md:text-3xl font-semibold mb-4">
             {safeText(user.name)}
           </h1>
 
-          <div className="space-y-2 text-lg">
+          <div className="space-y-2 text-sm md:text-lg">
             <p>🎂 Age: {safeText(user.age)}</p>
             <p>⚧ Gender: {safeText(user.gender)}</p>
             <p>🎓 Year: {safeText(user.year)}</p>
@@ -105,32 +106,26 @@ const ProfileDetailOverlay = ({ user, onClose, onSelect }) => {
           </div>
 
           {/* BIO */}
-          <div className="mt-6">
-            <p className="text-md text-gray-800 whitespace-pre-wrap break-all leading-relaxed">
+          <div className="mt-4">
+            <p className="text-sm md:text-base whitespace-pre-wrap break-all leading-relaxed">
               {safeText(user.bio)}
             </p>
           </div>
 
-          {/* 🔗 CLICKABLE SOCIALS */}
-          <div className="mt-6 space-y-1 text-lg">
+          {/* SOCIALS */}
+          <div className="mt-4 space-y-1 text-sm md:text-lg">
             <ClickableLink label="GitHub" value={user.github} />
             <ClickableLink label="LinkedIn" value={user.linkedin} />
             <ClickableLink label="Instagram" value={user.instagram} />
           </div>
 
-          {/* STAR ACTION */}
-          <motion.button
-            whileHover={{
-              scale: 1.25,
-              rotate: 5,
-              boxShadow: "0 0 20px rgba(250, 204, 21, 0.9)",
-            }}
-            whileTap={{ scale: 0.95 }}
+          {/* STAR */}
+          <button
             onClick={onSelect}
-            className="absolute bottom-6 right-6 text-yellow-400"
+            className="absolute bottom-4 right-4 text-yellow-400 hover:scale-125 transition"
           >
-            <Star size={36} fill="currentColor" />
-          </motion.button>
+            <Star size={34} fill="currentColor" />
+          </button>
         </div>
       </motion.div>
     </motion.div>

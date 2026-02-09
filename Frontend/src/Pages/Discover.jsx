@@ -154,7 +154,7 @@ const Discover = () => {
   return (
     <div className="min-h-screen bg-gradient-to-br from-blue-50 via-indigo-50 to-purple-100 overflow-hidden">
       <Navbar />
-      <div className="ml-72">
+      <div className="lg:ml-72 pt-14 lg:pt-0">
 
         {/* CARD AREA */}
         <div className="relative flex justify-center items-center py-20">
@@ -170,7 +170,7 @@ const Discover = () => {
                   scale: direction === "left" ? 0.99 : 0.965,
                 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="absolute left-[120px] -translate-x-10 w-[420px] h-[620px] bg-white/60 backdrop-blur-3xl rounded-3xl shadow-xl border border-white/20 overflow-hidden z-0 pointer-events-none"
+                className="hidden lg:block absolute left-[120px] -translate-x-10 w-[420px] h-[620px] bg-white/60 backdrop-blur-3xl rounded-3xl shadow-xl border border-white/20 overflow-hidden z-0 pointer-events-none"
               >
                 <div className="relative h-[60%] overflow-hidden">
                   <img
@@ -194,7 +194,7 @@ const Discover = () => {
                   scale: direction === "right" ? 0.99 : 0.965,
                 }}
                 transition={{ duration: 0.4, ease: "easeOut" }}
-                className="absolute right-[120px] translate-x-10 w-[420px] h-[620px] bg-white/60 backdrop-blur-3xl rounded-3xl shadow-xl border border-white/20 overflow-hidden z-0 pointer-events-none"
+                className="hidden lg:block absolute right-[120px] translate-x-10 w-[420px] h-[620px] bg-white/60 backdrop-blur-3xl rounded-3xl shadow-xl border border-white/20 overflow-hidden z-0 pointer-events-none"
               >
                 <div className="relative h-[60%] overflow-hidden">
                   <img
@@ -220,7 +220,7 @@ const Discover = () => {
                 animate={direction || "center"}
                 exit={direction}
                 onClick={() => setActiveUser(user)}
-                className="w-[480px] h-[680px] bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden cursor-pointer relative border border-white/20 z-10"
+                className="w-[92vw] max-w-[420px] h-[82vh] max-h-[720px] bg-white/90 backdrop-blur-xl rounded-3xl shadow-2xl overflow-hidden cursor-pointer relative border border-white/20 z-10"
               >
                 {/* Image Section */}
                 <div className="relative h-[60%] overflow-hidden">
@@ -232,13 +232,13 @@ const Discover = () => {
 
                   {/* Name on Image */}
                   <div className="absolute bottom-6 left-6 right-6">
-                    <h3 className="text-4xl font-bold text-white drop-shadow-lg">{user.name}</h3>
-                    <p className="text-white/90 text-lg font-medium mt-1">{user.year}</p>
+                    <h3 className="text-2xl md:text-4xl font-bold text-white drop-shadow-lg">{user.name}</h3>
+                    <p className="text-white/90 text-sm md:text-lg font-medium mt-1">{user.year}</p>
                   </div>
                 </div>
 
                 {/* Bio Section */}
-                <div className="p-6 h-[40%] flex flex-col">
+                <div className="p-4 md:p-6 h-[45%] flex flex-col pb-20">
                   <div className="flex-1 overflow-y-auto">
                     <p className="text-md font-bold text-gray-500 mb-2 uppercase tracking-wide">About</p>
                     {user.bio ? (
@@ -263,7 +263,7 @@ const Discover = () => {
                   </div>
 
                   {/* Action Buttons */}
-                  <div className="flex gap-4 mt-6">
+                  <div className="absolute bottom-4 left-4 right-4 flex gap-4">
                     <motion.button
                       whileHover={{ scale: 1.05 }}
                       whileTap={{ scale: 0.95 }}
@@ -271,9 +271,9 @@ const Discover = () => {
                         e.stopPropagation();
                         swipeLeft();
                       }}
-                      className=" flex-5 flex items-center justify-center gap-4 px-1 py-3 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-full shadow-lg text-white font-bold text-lg transition-all duration-200 cursor-pointer"
+                      className=" flex-5 flex items-center justify-center gap-4 px-1 py-3 md:py-4 bg-gradient-to-r from-red-500 to-rose-500 hover:from-red-600 hover:to-rose-600 rounded-full shadow-lg text-white font-bold text-lg transition-all duration-200 cursor-pointer"
                     >
-                      <X size={28} strokeWidth={2.5} />
+                      <X size={24} strokeWidth={2.5} />
 
                     </motion.button>
 
@@ -286,7 +286,7 @@ const Discover = () => {
                       }}
                       className="flex-5 flex items-center justify-center gap-4 px-1 py-3 bg-gradient-to-r from-green-500 to-emerald-500 hover:from-green-600 hover:to-emerald-600 rounded-full shadow-lg text-white font-bold text-lg transition-all duration-200 cursor-pointer"
                     >
-                      <Check size={28} strokeWidth={2.5} />
+                      <Check size={24} strokeWidth={2.5} />
                     </motion.button>
                   </div>
                 </div>
@@ -294,7 +294,7 @@ const Discover = () => {
                 {overlay === "reject" && (
                   <div className="absolute inset-0 bg-red-500/30 backdrop-blur-sm flex items-center justify-center">
                     <div className="bg-white/90 rounded-full p-8 shadow-2xl">
-                      <X size={120} className="text-red-600" strokeWidth={3} />
+                      <X size={80} className="text-red-600 md:size-[120px]" strokeWidth={3} />
                     </div>
                   </div>
                 )}
@@ -302,7 +302,7 @@ const Discover = () => {
                 {overlay === "accept" && (
                   <div className="absolute inset-0 bg-green-500/30 backdrop-blur-sm flex items-center justify-center">
                     <div className="bg-white/90 rounded-full p-8 shadow-2xl">
-                      <Check size={120} className="text-green-600" strokeWidth={3} />
+                      <Check size={80} className="text-green-600 md:size-[120px]" strokeWidth={3} />
                     </div>
                   </div>
                 )}
